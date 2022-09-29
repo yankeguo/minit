@@ -127,15 +127,15 @@ func execute(opts ExecuteOptions, logger *gracelog.ProcLogger) (err error) {
 	}
 
 	// 串流
-	go logger.StreamOut(outPipe)
-	go logger.StreamErr(errPipe)
+	go logger.Out().ReadFrom(outPipe)
+	go logger.Err().ReadFrom(errPipe)
 
 	// 等待退出
 	if err = cmd.Wait(); err != nil {
 		logger.Errorf("进程退出: %s", err.Error())
 		err = nil
 	} else {
-		logger.Printf("进程退出")
+		logger.Print("进程退出")
 	}
 
 	// 移除 Pid
