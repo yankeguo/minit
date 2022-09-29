@@ -1,5 +1,7 @@
 # minit
 
+[![main](https://github.com/guoyk93/minit/actions/workflows/main.yml/badge.svg)](https://github.com/guoyk93/minit/actions/workflows/main.yml)
+
 The missing `init` daemon for container
 
 ## Upstream
