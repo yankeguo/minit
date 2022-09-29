@@ -27,7 +27,6 @@ var (
 )
 
 var (
-	Version = ""
 	GitHash = ""
 )
 
@@ -66,15 +65,11 @@ func main() {
 		return
 	}
 
-	if Version == "" {
-		Version = "UNKNOWN"
-	}
-
 	if GitHash == "" {
 		GitHash = "UNKNOWN"
 	}
 
-	log.Print("minit version v" + Version + " #" + GitHash)
+	log.Print("minit (#" + GitHash + ")")
 
 	// 自述文件
 	setupBanner()

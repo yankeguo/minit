@@ -1,0 +1,50 @@
+name: main
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v3
+
+      - name: golang setup
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+
+      - name: golang build
+        run: go build -v ./...
+
+      - name: golang test
+        run: go test -v ./...
+
+      - name: dockerhub meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: guoyk/minit
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: dockerhub login
+        uses: docker/login-action@v2
+        if: github.event_name != 'pull_request'
+        with:
+          username: guoyk
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: dockerhub build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          file: ./Dockerfile
