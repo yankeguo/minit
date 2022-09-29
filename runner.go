@@ -44,12 +44,6 @@ var (
 				return NewCronRunner(unit, logger)
 			},
 		},
-		KindLogrotate: {
-			Level: RunnerL3,
-			Create: func(unit Unit, logger *gracelog.ProcLogger) (Runner, error) {
-				return NewLogrotateRunner(unit, logger)
-			},
-		},
 	}
 )
 
