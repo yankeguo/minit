@@ -1,11 +1,11 @@
 //go:build linux
-// +build linux
 
 package main
 
 import (
 	"bytes"
 	"fmt"
+	"github.com/guoyk93/grace/gracelog"
 	"io/ioutil"
 	"os"
 	"os/signal"
