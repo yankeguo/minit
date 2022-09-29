@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"github.com/guoyk93/minit/pkg/mlog"
+	"github.com/guoyk93/grace/gracelog"
 )
 
 type RunnerLevel int
@@ -15,38 +15,38 @@ const (
 
 type RunnerFactory struct {
 	Level  RunnerLevel
-	Create func(unit Unit, logger *mlog.Logger) (Runner, error)
+	Create func(unit Unit, logger *gracelog.ProcLogger) (Runner, error)
 }
 
 var (
 	RunnerFactories = map[string]*RunnerFactory{
 		KindRender: {
 			Level: RunnerL1,
-			Create: func(unit Unit, logger *mlog.Logger) (Runner, error) {
+			Create: func(unit Unit, logger *gracelog.ProcLogger) (Runner, error) {
 				return NewRenderRunner(unit, logger)
 			},
 		},
 		KindOnce: {
 			Level: RunnerL2,
-			Create: func(unit Unit, logger *mlog.Logger) (Runner, error) {
+			Create: func(unit Unit, logger *gracelog.ProcLogger) (Runner, error) {
 				return NewOnceRunner(unit, logger)
 			},
 		},
 		KindDaemon: {
 			Level: RunnerL3,
-			Create: func(unit Unit, logger *mlog.Logger) (Runner, error) {
+			Create: func(unit Unit, logger *gracelog.ProcLogger) (Runner, error) {
 				return NewDaemonRunner(unit, logger)
 			},
 		},
 		KindCron: {
 			Level: RunnerL3,
-			Create: func(unit Unit, logger *mlog.Logger) (Runner, error) {
+			Create: func(unit Unit, logger *gracelog.ProcLogger) (Runner, error) {
 				return NewCronRunner(unit, logger)
 			},
 		},
 		KindLogrotate: {
 			Level: RunnerL3,
-			Create: func(unit Unit, logger *mlog.Logger) (Runner, error) {
+			Create: func(unit Unit, logger *gracelog.ProcLogger) (Runner, error) {
 				return NewLogrotateRunner(unit, logger)
 			},
 		},

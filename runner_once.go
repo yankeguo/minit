@@ -3,14 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/guoyk93/minit/pkg/mlog"
+	"github.com/guoyk93/grace/gracelog"
 )
 
 const KindOnce = "once"
 
 type OnceRunner struct {
 	Unit
-	logger *mlog.Logger
+	logger *gracelog.ProcLogger
 }
 
 func (r *OnceRunner) Run(ctx context.Context) {
@@ -22,7 +22,7 @@ func (r *OnceRunner) Run(ctx context.Context) {
 	}
 }
 
-func NewOnceRunner(unit Unit, logger *mlog.Logger) (Runner, error) {
+func NewOnceRunner(unit Unit, logger *gracelog.ProcLogger) (Runner, error) {
 	if len(unit.Command) == 0 {
 		return nil, fmt.Errorf("没有指定命令，检查 command 字段")
 	}

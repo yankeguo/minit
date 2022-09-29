@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/guoyk93/minit/pkg/mlog"
+	"github.com/guoyk93/grace/gracelog"
 	"github.com/guoyk93/minit/pkg/tmplfuncs"
 	"io/ioutil"
 	"os"
@@ -17,7 +17,7 @@ const KindRender = "render"
 
 type RenderRunner struct {
 	Unit
-	logger *mlog.Logger
+	logger *gracelog.ProcLogger
 }
 
 func (r *RenderRunner) Run(ctx context.Context) {
@@ -64,7 +64,7 @@ func (r *RenderRunner) Run(ctx context.Context) {
 	}
 }
 
-func NewRenderRunner(unit Unit, logger *mlog.Logger) (Runner, error) {
+func NewRenderRunner(unit Unit, logger *gracelog.ProcLogger) (Runner, error) {
 	if len(unit.Files) == 0 {
 		return nil, fmt.Errorf("没有指定文件，检查 files 字段")
 	}

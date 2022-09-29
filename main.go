@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/guoyk93/minit/pkg/mlog"
+	"github.com/guoyk93/grace/gracelog"
 	"os"
 	"os/signal"
 	"regexp"
@@ -23,7 +23,7 @@ var (
 )
 
 var (
-	log *mlog.Logger
+	log *gracelog.ProcLogger
 )
 
 var (
@@ -57,10 +57,12 @@ func main() {
 		return
 	}
 
-	if log, err = mlog.NewLogger(mlog.LoggerOptions{
-		Dir:      optLogDir,
-		Name:     "minit",
-		Filename: "minit",
+	if log, err = gracelog.NewProcLogger(gracelog.ProcLoggerOptions{
+		ConsolePrefix: "[minit] ",
+		RotatingFileOptions: gracelog.RotatingFileOptions{
+			Dir:      optLogDir,
+			Filename: "minit",
+		},
 	}); err != nil {
 		return
 	}
@@ -150,11 +152,13 @@ func main() {
 			return
 		}
 
-		var logger *mlog.Logger
-		if logger, err = mlog.NewLogger(mlog.LoggerOptions{
-			Dir:      optLogDir,
-			Name:     unit.CanonicalName(),
-			Filename: unit.Name,
+		var logger *gracelog.ProcLogger
+		if logger, err = gracelog.NewProcLogger(gracelog.ProcLoggerOptions{
+			RotatingFileOptions: gracelog.RotatingFileOptions{
+				Dir:      optLogDir,
+				Filename: unit.CanonicalName(),
+			},
+			ConsolePrefix: "[" + unit.Name + "] ",
 		}); err != nil {
 			err = fmt.Errorf("无法为 %s 创建日志: %s", unit.Name, err.Error())
 			return

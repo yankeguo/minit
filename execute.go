@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/guoyk93/minit/pkg/mlog"
+	"github.com/guoyk93/grace/gracelog"
 	"github.com/guoyk93/minit/pkg/shellquote"
 	"golang.org/x/text/encoding"
 	"golang.org/x/text/encoding/simplifiedchinese"
@@ -58,7 +58,7 @@ func notifyChildPIDs(sig os.Signal) {
 	}
 }
 
-func execute(opts ExecuteOptions, logger *mlog.Logger) (err error) {
+func execute(opts ExecuteOptions, logger *gracelog.ProcLogger) (err error) {
 	argv := make([]string, 0)
 
 	// 检查 opts.Dir

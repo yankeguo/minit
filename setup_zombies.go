@@ -6,7 +6,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"github.com/guoyk93/minit/pkg/mlog"
 	"io/ioutil"
 	"os"
 	"os/signal"
@@ -15,7 +14,7 @@ import (
 	"time"
 )
 
-func setupZombies(log *mlog.Logger) {
+func setupZombies(log *gracelog.ProcLogger) {
 	// 如果自己不是 PID 1，则不负责清理僵尸进程
 	if os.Getpid() != 1 {
 		log.Print("minit 并未作为 PID=1 进程运行，忽略僵尸进程清理")
@@ -25,7 +24,7 @@ func setupZombies(log *mlog.Logger) {
 	go runZombieCleaner(log)
 }
 
-func runZombieCleaner(log *mlog.Logger) {
+func runZombieCleaner(log *gracelog.ProcLogger) {
 	// SIGCHLD 触发
 	chSig := make(chan os.Signal, 10)
 	signal.Notify(chSig, syscall.SIGCHLD)
@@ -52,7 +51,7 @@ func runZombieCleaner(log *mlog.Logger) {
 	}
 }
 
-func cleanZombieProcesses(log *mlog.Logger) {
+func cleanZombieProcesses(log *gracelog.ProcLogger) {
 	var (
 		err  error
 		pids []int
@@ -122,7 +121,7 @@ func checkProcStatIsZombie(buf []byte) bool {
 	return buf[0] == 'Z'
 }
 
-func waitZombieProcess(log *mlog.Logger, pid int) {
+func waitZombieProcess(log *gracelog.ProcLogger, pid int) {
 	var err error
 	var ws syscall.WaitStatus
 	for {

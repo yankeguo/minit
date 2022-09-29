@@ -2,14 +2,14 @@ package main
 
 import (
 	"context"
-	"github.com/guoyk93/minit/pkg/mlog"
+	"github.com/guoyk93/grace/gracelog"
 )
 
 const KindLogrotate = "logrotate"
 
 type LogrotateRunner struct {
 	Unit
-	logger *mlog.Logger
+	logger *gracelog.ProcLogger
 }
 
 func (l *LogrotateRunner) Run(ctx context.Context) {
@@ -21,7 +21,7 @@ func (l *LogrotateRunner) Run(ctx context.Context) {
 	<-ctx.Done()
 }
 
-func NewLogrotateRunner(unit Unit, logger *mlog.Logger) (Runner, error) {
+func NewLogrotateRunner(unit Unit, logger *gracelog.ProcLogger) (Runner, error) {
 	return &LogrotateRunner{
 		Unit:   unit,
 		logger: logger,
