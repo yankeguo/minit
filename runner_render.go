@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/guoyk93/grace/gracelog"
-	"github.com/guoyk93/minit/pkg/tmplfuncs"
+	"github.com/guoyk93/grace/gracetmpl"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -39,7 +39,7 @@ func (r *RenderRunner) Run(ctx context.Context) {
 				r.logger.Errorf("无法读取文件: %s", name)
 				continue
 			}
-			tmpl := template.New("__main__").Funcs(tmplfuncs.Funcs).Option("missingkey=zero")
+			tmpl := template.New("__main__").Funcs(gracetmpl.Funcs).Option("missingkey=zero")
 			if tmpl, err = tmpl.Parse(string(buf)); err != nil {
 				r.logger.Errorf("无法解析文件 %s: %s", name, err.Error())
 				continue
