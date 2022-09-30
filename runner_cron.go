@@ -11,7 +11,7 @@ const KindCron = "cron"
 
 type CronRunner struct {
 	Unit
-	logger *gracelog.ProcLogger
+	logger gracelog.ProcLogger
 }
 
 func (r *CronRunner) Run(ctx context.Context) {
@@ -21,7 +21,7 @@ func (r *CronRunner) Run(ctx context.Context) {
 	cr := cron.New(cron.WithLogger(cron.PrintfLogger(r.logger)))
 	_, err := cr.AddFunc(r.Cron, func() {
 		r.logger.Printf("定时任务触发")
-		_ = execute(r.ExecuteOptions, r.logger)
+		_ = EXE.Execute(r.ExecuteOptions(r.logger))
 		r.logger.Printf("定时任务结束")
 	})
 	if err != nil {
@@ -35,7 +35,7 @@ func (r *CronRunner) Run(ctx context.Context) {
 	<-cr.Stop().Done()
 }
 
-func NewCronRunner(unit Unit, logger *gracelog.ProcLogger) (Runner, error) {
+func NewCronRunner(unit Unit, logger gracelog.ProcLogger) (Runner, error) {
 	if len(unit.Command) == 0 {
 		return nil, fmt.Errorf("没有指定命令，检查 command 字段")
 	}

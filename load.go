@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/guoyk93/grace/gracelog"
+	"github.com/guoyk93/minit/pkg/mexec"
 	"github.com/guoyk93/minit/pkg/shellquote"
 	"gopkg.in/yaml.v3"
 	"io"
@@ -49,7 +51,11 @@ func init() {
 }
 
 type Unit struct {
-	ExecuteOptions `yaml:",inline"`
+	Dir     string            `yaml:"dir"`
+	Shell   string            `yaml:"shell"`
+	Env     map[string]string `yaml:"env"`
+	Command []string          `yaml:"command"`
+	Charset string            `yaml:"charset"`
 
 	Name  string `yaml:"name"`  // 单元名
 	Group string `yaml:"group"` // 单元分组
@@ -63,6 +69,19 @@ type Unit struct {
 	Cron string `yaml:"cron"` // cron 单元, 定时表达式
 	Mode string `yaml:"mode"` // logrotate 单元，模式 daily 或者 size
 	Keep int    `yaml:"keep"` // logrotate 单元，保留天数/份数
+}
+
+func (u Unit) ExecuteOptions(logger gracelog.ProcLogger) mexec.ExecuteOptions {
+	return mexec.ExecuteOptions{
+		Dir:     u.Dir,
+		Shell:   u.Shell,
+		Env:     u.Env,
+		Command: u.Command,
+		Charset: u.Charset,
+
+		Logger:          logger,
+		IgnoreExecError: true,
+	}
 }
 
 func (u Unit) CanonicalName() string {
@@ -89,12 +108,10 @@ func LoadArgsMain() (unit Unit, ok bool, err error) {
 		return
 	}
 	unit = Unit{
-		Name:  "arg-main",
-		Group: DefaultGroup,
-		Kind:  KindDaemon,
-		ExecuteOptions: ExecuteOptions{
-			Command: args,
-		},
+		Name:    "arg-main",
+		Group:   DefaultGroup,
+		Kind:    KindDaemon,
+		Command: args,
 	}
 	ok = true
 	return
@@ -123,14 +140,12 @@ func LoadEnvMain() (unit Unit, ok bool, err error) {
 		return
 	}
 	unit = Unit{
-		Name:  name,
-		Group: group,
-		Kind:  kind,
-		ExecuteOptions: ExecuteOptions{
-			Command: command,
-			Dir:     strings.TrimSpace(os.Getenv("MINIT_MAIN_DIR")),
-			Charset: strings.TrimSpace(os.Getenv("MINIT_MAIN_CHARSET")),
-		},
+		Name:    name,
+		Group:   group,
+		Kind:    kind,
+		Command: command,
+		Dir:     strings.TrimSpace(os.Getenv("MINIT_MAIN_DIR")),
+		Charset: strings.TrimSpace(os.Getenv("MINIT_MAIN_CHARSET")),
 	}
 	ok = true
 	return

@@ -11,7 +11,7 @@ const KindDaemon = "daemon"
 
 type DaemonRunner struct {
 	Unit
-	logger *gracelog.ProcLogger
+	logger gracelog.ProcLogger
 }
 
 func (r *DaemonRunner) Run(ctx context.Context) {
@@ -25,7 +25,7 @@ forLoop:
 		}
 
 		var err error
-		if err = execute(r.ExecuteOptions, r.logger); err != nil {
+		if err = EXE.Execute(r.ExecuteOptions(r.logger)); err != nil {
 			r.logger.Errorf("启动失败: %s", err.Error())
 		}
 
@@ -46,7 +46,7 @@ forLoop:
 	}
 }
 
-func NewDaemonRunner(unit Unit, logger *gracelog.ProcLogger) (Runner, error) {
+func NewDaemonRunner(unit Unit, logger gracelog.ProcLogger) (Runner, error) {
 	if len(unit.Command) == 0 {
 		return nil, fmt.Errorf("没有指定命令，检查 command 字段")
 	}

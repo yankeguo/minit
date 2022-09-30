@@ -2,7 +2,7 @@ package main
 
 import (
 	"bytes"
-	"io/ioutil"
+	"os"
 )
 
 const (
@@ -12,7 +12,7 @@ const (
 func setupBanner() {
 	var err error
 	var buf []byte
-	if buf, err = ioutil.ReadFile(BannerFile); err != nil {
+	if buf, err = os.ReadFile(BannerFile); err != nil {
 		return
 	}
 	lines := bytes.Split(buf, []byte{'\n'})

@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-func setupZombies(log *gracelog.ProcLogger) {
+func setupZombies(log gracelog.ProcLogger) {
 	// 如果自己不是 PID 1，则不负责清理僵尸进程
 	if os.Getpid() != 1 {
 		log.Print("minit 并未作为 PID=1 进程运行，忽略僵尸进程清理")
@@ -24,7 +24,7 @@ func setupZombies(log *gracelog.ProcLogger) {
 	go runZombieCleaner(log)
 }
 
-func runZombieCleaner(log *gracelog.ProcLogger) {
+func runZombieCleaner(log gracelog.ProcLogger) {
 	// SIGCHLD 触发
 	chSig := make(chan os.Signal, 10)
 	signal.Notify(chSig, syscall.SIGCHLD)
@@ -51,7 +51,7 @@ func runZombieCleaner(log *gracelog.ProcLogger) {
 	}
 }
 
-func cleanZombieProcesses(log *gracelog.ProcLogger) {
+func cleanZombieProcesses(log gracelog.ProcLogger) {
 	var (
 		err  error
 		pids []int
@@ -121,7 +121,7 @@ func checkProcStatIsZombie(buf []byte) bool {
 	return buf[0] == 'Z'
 }
 
-func waitZombieProcess(log *gracelog.ProcLogger, pid int) {
+func waitZombieProcess(log gracelog.ProcLogger, pid int) {
 	var err error
 	var ws syscall.WaitStatus
 	for {

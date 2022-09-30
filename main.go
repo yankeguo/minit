@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/guoyk93/grace/gracelog"
+	"github.com/guoyk93/minit/pkg/mexec"
 	"os"
 	"os/signal"
 	"regexp"
@@ -23,7 +24,8 @@ var (
 )
 
 var (
-	log *gracelog.ProcLogger
+	log gracelog.ProcLogger
+	EXE = mexec.NewManager()
 )
 
 var (
@@ -152,7 +154,7 @@ func main() {
 			return
 		}
 
-		var logger *gracelog.ProcLogger
+		var logger gracelog.ProcLogger
 		if logger, err = gracelog.NewProcLogger(gracelog.ProcLoggerOptions{
 			RotatingFileOptions: gracelog.RotatingFileOptions{
 				Dir:      optLogDir,
@@ -215,7 +217,8 @@ func main() {
 
 	// 延迟 3 秒播发信号
 	time.Sleep(time.Second * 3)
-	notifyChildPIDs(sig)
+
+	EXE.Signal(sig)
 
 	// 等待控制器退出
 	wg.Wait()
