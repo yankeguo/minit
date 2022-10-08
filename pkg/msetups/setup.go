@@ -11,17 +11,14 @@ type SetupFunc = gg.F11[mlog.ProcLogger, error]
 
 var (
 	setupsLock sync.Locker = &sync.Mutex{}
-	setups     []gg.T2[int64, SetupFunc]
+	setups     []gg.T2[int, SetupFunc]
 )
 
-func Register(priority int64, fn SetupFunc) {
+func Register(order int, fn SetupFunc) {
 	setupsLock.Lock()
 	defer setupsLock.Unlock()
 
-	setups = append(setups, gg.T2[int64, SetupFunc]{
-		A: priority,
-		B: fn,
-	})
+	setups = append(setups, gg.T2[int, SetupFunc]{A: order, B: fn})
 }
 
 func Setup(logger mlog.ProcLogger) (err error) {

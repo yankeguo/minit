@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// Funcs provided funcs for gracetmpl
+// Funcs provided funcs for render
 var Funcs = map[string]interface{}{
 	"netResolveIPAddr":    net.ResolveIPAddr,
 	"netResolveIP":        netResolveIP,

@@ -78,6 +78,12 @@ func (ld *Loader) Load(opts LoadOptions) (output []Unit, skipped []Unit, err err
 
 	// whitelist / blacklist, replicas
 	for _, unit := range units {
+		// check unit kind
+		if _, ok := knownUnitKind[unit.Kind]; !ok {
+			err = errors.New("invalid unit kind: " + unit.Kind)
+			return
+		}
+
 		// check unit name
 		if !regexpName.MatchString(unit.Name) {
 			err = errors.New("invalid unit name: " + unit.Name)

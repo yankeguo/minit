@@ -3,177 +3,154 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/guoyk93/gg"
+	"github.com/guoyk93/gg/ggos"
 	"github.com/guoyk93/minit/pkg/mexec"
 	"github.com/guoyk93/minit/pkg/mlog"
+	"github.com/guoyk93/minit/pkg/mrunners"
 	"github.com/guoyk93/minit/pkg/msetups"
 	"github.com/guoyk93/minit/pkg/munit"
 	"os"
 	"os/signal"
-	"regexp"
+	"sort"
 	"sync"
 	"syscall"
 	"time"
 )
 
 var (
-	optUnitDir   string
-	optLogDir    string
-	optQuickExit bool
-)
-
-var (
-	UnitNamePattern = regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9_-]*[a-zA-Z0-9]$`)
-)
-
-var (
-	LOG mlog.ProcLogger
-	EXE = mexec.NewManager()
-)
-
-var (
-	GitHash = ""
+	GitHash = "UNKNOWN"
 )
 
 func exit(err *error) {
 	if *err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "[%s] 错误退出: %s\n", "minit", (*err).Error())
+		_, _ = fmt.Fprintf(os.Stderr, "[%s] exited with error: %s\n", "minit", (*err).Error())
 		os.Exit(1)
 	} else {
-		_, _ = fmt.Fprintf(os.Stdout, "[%s] 正常退出\n", "minit")
+		_, _ = fmt.Fprintf(os.Stdout, "[%s] exited\n", "minit")
 	}
 }
 
 func main() {
 	var err error
 	defer exit(&err)
+	defer gg.Guard(&err)
 
-	StringEnv(&optUnitDir, "MINIT_UNIT_DIR", "/etc/minit.d")
-	StringEnv(&optLogDir, "MINIT_LOG_DIR", "/var/log/minit")
-	BoolEnv(&optQuickExit, "MINIT_QUICK_EXIT")
+	var (
+		optUnitDir   = "/etc/minit.d"
+		optLogDir    = "/var/log/minit"
+		optQuickExit bool
+	)
 
-	// 确保配置单元目录
-	if err = os.MkdirAll(optUnitDir, 0755); err != nil {
-		return
-	}
+	ggos.MustEnv("MINIT_UNIT_DIR", &optUnitDir)
+	ggos.MustEnv("MINIT_LOG_DIR", &optLogDir)
+	ggos.BoolEnv("MINIT_QUICK_EXIT", &optQuickExit)
 
-	// 确保日志目录
-	if err = os.MkdirAll(optLogDir, 0755); err != nil {
-		return
-	}
+	gg.Must0(os.MkdirAll(optUnitDir, 0755))
+	gg.Must0(os.MkdirAll(optLogDir, 0755))
 
-	if LOG, err = mlog.NewProcLogger(mlog.ProcLoggerOptions{
+	log := gg.Must(mlog.NewProcLogger(mlog.ProcLoggerOptions{
 		ConsolePrefix: "[minit] ",
 		RotatingFileOptions: mlog.RotatingFileOptions{
 			Dir:      optLogDir,
 			Filename: "minit",
 		},
-	}); err != nil {
-		return
-	}
+	}))
 
-	if GitHash == "" {
-		GitHash = "UNKNOWN"
-	}
+	exem := mexec.NewManager()
 
-	LOG.Print("minit (#" + GitHash + ")")
+	log.Print("minit (#" + GitHash + ")")
 
 	// run through setups
-	if err = msetups.Setup(LOG); err != nil {
-		return
-	}
+	gg.Must0(msetups.Setup(log))
 
 	// load units
 	loader := munit.NewLoader()
-	var (
-		units []munit.Unit
-		skips []munit.Unit
+	units, skips := gg.Must2(
+		loader.Load(
+			munit.LoadOptions{
+				Args: os.Args[1:],
+				Env:  true,
+				Dir:  optUnitDir,
+			},
+		),
 	)
-	if units, skips, err = loader.Load(munit.LoadOptions{
-		Args: os.Args[1:],
-		Env:  true,
-		Dir:  optUnitDir,
-	}); err != nil {
-		return
-	}
 
 	for _, skip := range skips {
-		LOG.Print("unit skipped: " + skip.Name)
+		log.Print("unit skipped: " + skip.Name)
 	}
 
-	// 控制器组, L1 是 render (渲染配置文件), L2 是 once (一次性命令), L3 是 daemon 和 cron
-	runners := map[RunnerLevel][]Runner{}
+	// load runners
+	var runners []mrunners.Runner
 
-	// 创建控制器
 	for _, unit := range units {
-		fac := RunnerFactories[unit.Kind]
-		if fac == nil {
-			err = fmt.Errorf("单元 %s 类型 %s 未知，检查 kind 字段", unit.Name, unit.Kind)
-			return
-		}
-
-		var logger mlog.ProcLogger
-		if logger, err = mlog.NewProcLogger(mlog.ProcLoggerOptions{
-			RotatingFileOptions: mlog.RotatingFileOptions{
-				Dir:      optLogDir,
-				Filename: unit.CanonicalName(),
-			},
-			ConsolePrefix: "[" + unit.Name + "] ",
-		}); err != nil {
-			err = fmt.Errorf("无法为 %s 创建日志: %s", unit.Name, err.Error())
-			return
-		}
-
-		var runner Runner
-		if runner, err = fac.Create(unit, logger); err != nil {
-			err = fmt.Errorf("无法为 %s 创建控制器: %s", unit.Name, err.Error())
-			return
-		}
-
-		runners[fac.Level] = append(runners[fac.Level], runner)
+		runners = append(
+			runners,
+			gg.Must(mrunners.Create(mrunners.RunnerOptions{
+				Unit: unit,
+				Exec: exem,
+				Logger: gg.Must(mlog.NewProcLogger(mlog.ProcLoggerOptions{
+					ConsolePrefix: "[" + unit.Kind + "/" + unit.Name + "] ",
+					RotatingFileOptions: mlog.RotatingFileOptions{
+						Dir:      optLogDir,
+						Filename: unit.Name,
+					},
+				})),
+			})),
+		)
 	}
 
-	// 运行 L1 控制器
-	for _, runner := range runners[RunnerL1] {
-		runner.Run(context.Background())
-	}
-	// 运行 L2 控制器
-	for _, runner := range runners[RunnerL2] {
-		runner.Run(context.Background())
-	}
+	sort.Slice(runners, func(i, j int) bool {
+		return runners[i].Order > runners[j].Order
+	})
 
-	if len(runners[RunnerL3]) == 0 && optQuickExit {
-		LOG.Printf("没有 L3 任务")
+	// run and remove short runners
+	var n int
+	for _, runner := range runners {
+		if runner.Long {
+			runners[n] = runner
+			n++
+		} else {
+			runner.Func.Do(context.Background())
+		}
+	}
+	runners = runners[:n]
+
+	// quick exit
+	if len(runners) == 0 && optQuickExit {
+		log.Printf("no long runners and MINIT_QUICK_EXIT is set")
 		return
 	}
 
-	// 运行 L3 控制器
+	// run long runners
 	ctx, cancel := context.WithCancel(context.Background())
 	wg := &sync.WaitGroup{}
 
-	for _, runner := range runners[RunnerL3] {
+	for _, runner := range runners {
 		wg.Add(1)
-		go func(runner Runner) {
-			runner.Run(ctx)
+		go func(runner mrunners.Runner) {
+			runner.Func.Do(ctx)
 			wg.Done()
 		}(runner)
 	}
 
-	LOG.Printf("启动完毕")
+	log.Printf("booted")
 
-	// 等待信号并退出
+	// wait for signals
 	chSig := make(chan os.Signal, 1)
 	signal.Notify(chSig, syscall.SIGINT, syscall.SIGTERM)
 	sig := <-chSig
-	LOG.Printf("接收到信号: %s", sig.String())
+	log.Printf("signal caught: %s", sig.String())
 
-	// 关闭主环境
+	// shutdown context
 	cancel()
 
-	// 延迟 3 秒播发信号
+	// dely 3 seconds
 	time.Sleep(time.Second * 3)
 
-	EXE.Signal(sig)
+	// broadcast signals
+	exem.Signal(sig)
 
-	// 等待控制器退出
+	// wait for long runners
 	wg.Wait()
 }

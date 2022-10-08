@@ -1,6 +1,7 @@
 package munit
 
 import (
+	"errors"
 	"github.com/guoyk93/minit/pkg/mexec"
 	"github.com/guoyk93/minit/pkg/mlog"
 )
@@ -14,6 +15,15 @@ const (
 	KindOnce   = "once"
 	KindCron   = "cron"
 	KindRender = "render"
+)
+
+var (
+	knownUnitKind = map[string]struct{}{
+		KindDaemon: {},
+		KindOnce:   {},
+		KindCron:   {},
+		KindRender: {},
+	}
 )
 
 type Unit struct {
@@ -37,6 +47,27 @@ type Unit struct {
 	Cron string `yaml:"cron"` // cron syntax
 }
 
+func (u Unit) RequireCommand() error {
+	if len(u.Command) == 0 {
+		return errors.New("missing unit field: command")
+	}
+	return nil
+}
+
+func (u Unit) RequireFiles() error {
+	if len(u.Files) == 0 {
+		return errors.New("missing unit field: command")
+	}
+	return nil
+}
+
+func (u Unit) RequireCron() error {
+	if len(u.Cron) == 0 {
+		return errors.New("missing unit field: cron")
+	}
+	return nil
+}
+
 func (u Unit) ExecuteOptions(logger mlog.ProcLogger) mexec.ExecuteOptions {
 	return mexec.ExecuteOptions{
 		Dir:     u.Dir,
@@ -48,8 +79,4 @@ func (u Unit) ExecuteOptions(logger mlog.ProcLogger) mexec.ExecuteOptions {
 		Logger:          logger,
 		IgnoreExecError: true,
 	}
-}
-
-func (u Unit) CanonicalName() string {
-	return u.Kind + "/" + u.Name
 }

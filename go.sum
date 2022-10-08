@@ -1,8 +1,8 @@
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/guoyk93/gg v0.0.0-20221008083014-63388ef3f458 h1:xgQUrEy0TnEWs/KuGpB2vAJPxDzvVTZTTJojvf0KBQ0=
-github.com/guoyk93/gg v0.0.0-20221008083014-63388ef3f458/go.mod h1:2g9SXon5g5iS9+y430kK9Q5Sg8Yid8/+mKlww7GiFLs=
+github.com/guoyk93/gg v0.0.0-20221008090600-17d21088ebf2 h1:tK4wD0wxbgmeg9csu1DZk7Cd/wJhaeP1H43WkedtXPY=
+github.com/guoyk93/gg v0.0.0-20221008090600-17d21088ebf2/go.mod h1:2g9SXon5g5iS9+y430kK9Q5Sg8Yid8/+mKlww7GiFLs=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/robfig/cron/v3 v3.0.1 h1:WdRxkvbJztn8LMz/QEvLN5sBU+xKpSqwwUO1Pjr4qDs=
