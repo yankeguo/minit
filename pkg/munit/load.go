@@ -13,10 +13,9 @@ import (
 )
 
 func LoadArgs(args []string) (unit Unit, ok bool, err error) {
-	// detect duplicated minit arguments
+	// fix a history issue
 	if len(args) > 0 {
 		if filepath.Base(args[0]) == "minit" {
-			// preventing looping minit
 			args = args[1:]
 			// extract arguments after '--' if existed
 			for i, item := range args {
@@ -116,6 +115,10 @@ func LoadFile(filename string) (units []Unit, err error) {
 			return
 		}
 
+		if unit.Kind == "" {
+			continue
+		}
+
 		units = append(units, unit)
 	}
 }
@@ -127,11 +130,11 @@ func LoadDir(dir string) (units []Unit, err error) {
 			return
 		}
 		for _, file := range files {
-			var fUnits []Unit
-			if fUnits, err = LoadFile(file); err != nil {
+			var _units []Unit
+			if _units, err = LoadFile(file); err != nil {
 				return
 			}
-			units = append(units, fUnits...)
+			units = append(units, _units...)
 		}
 	}
 	return

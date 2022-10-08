@@ -2,7 +2,7 @@ package mexec
 
 import (
 	"errors"
-	"github.com/guoyk93/grace/gracelog"
+	"github.com/guoyk93/minit/pkg/mlog"
 	"github.com/guoyk93/minit/pkg/shellquote"
 	"golang.org/x/text/encoding"
 	"golang.org/x/text/encoding/simplifiedchinese"
@@ -21,7 +21,7 @@ type ExecuteOptions struct {
 	Command []string
 	Charset string
 
-	Logger          gracelog.ProcLogger
+	Logger          mlog.ProcLogger
 	IgnoreExecError bool
 }
 

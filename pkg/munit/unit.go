@@ -1,8 +1,8 @@
 package munit
 
 import (
-	"github.com/guoyk93/grace/gracelog"
 	"github.com/guoyk93/minit/pkg/mexec"
+	"github.com/guoyk93/minit/pkg/mlog"
 )
 
 const (
@@ -37,7 +37,7 @@ type Unit struct {
 	Cron string `yaml:"cron"` // cron syntax
 }
 
-func (u Unit) ExecuteOptions(logger gracelog.ProcLogger) mexec.ExecuteOptions {
+func (u Unit) ExecuteOptions(logger mlog.ProcLogger) mexec.ExecuteOptions {
 	return mexec.ExecuteOptions{
 		Dir:     u.Dir,
 		Shell:   u.Shell,

@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/guoyk93/grace/gracelog"
+	"github.com/guoyk93/minit/pkg/mlog"
 	"github.com/guoyk93/minit/pkg/munit"
 	"time"
 )
@@ -12,7 +12,7 @@ const KindDaemon = "daemon"
 
 type DaemonRunner struct {
 	munit.Unit
-	logger gracelog.ProcLogger
+	logger mlog.ProcLogger
 }
 
 func (r *DaemonRunner) Run(ctx context.Context) {
@@ -47,7 +47,7 @@ forLoop:
 	}
 }
 
-func NewDaemonRunner(unit munit.Unit, logger gracelog.ProcLogger) (Runner, error) {
+func NewDaemonRunner(unit munit.Unit, logger mlog.ProcLogger) (Runner, error) {
 	if len(unit.Command) == 0 {
 		return nil, fmt.Errorf("没有指定命令，检查 command 字段")
 	}

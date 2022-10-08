@@ -3,7 +3,7 @@
 package main
 
 import (
-	"github.com/guoyk93/grace/gracelog"
+	"github.com/guoyk93/minit/pkg/mlog"
 )
 
 func setupTHP() error {
@@ -18,6 +18,6 @@ func setupRLimits() error {
 	return nil
 }
 
-func setupZombies(log gracelog.ProcLogger) {
+func setupZombies(log mlog.ProcLogger) {
 	return
 }

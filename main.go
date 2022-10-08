@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/guoyk93/grace/gracelog"
 	"github.com/guoyk93/minit/pkg/mexec"
+	"github.com/guoyk93/minit/pkg/mlog"
 	"github.com/guoyk93/minit/pkg/munit"
 	"os"
 	"os/signal"
@@ -25,7 +25,7 @@ var (
 )
 
 var (
-	LOG gracelog.ProcLogger
+	LOG mlog.ProcLogger
 	EXE = mexec.NewManager()
 )
 
@@ -60,9 +60,9 @@ func main() {
 		return
 	}
 
-	if LOG, err = gracelog.NewProcLogger(gracelog.ProcLoggerOptions{
+	if LOG, err = mlog.NewProcLogger(mlog.ProcLoggerOptions{
 		ConsolePrefix: "[minit] ",
-		RotatingFileOptions: gracelog.RotatingFileOptions{
+		RotatingFileOptions: mlog.RotatingFileOptions{
 			Dir:      optLogDir,
 			Filename: "minit",
 		},
@@ -128,9 +128,9 @@ func main() {
 			return
 		}
 
-		var logger gracelog.ProcLogger
-		if logger, err = gracelog.NewProcLogger(gracelog.ProcLoggerOptions{
-			RotatingFileOptions: gracelog.RotatingFileOptions{
+		var logger mlog.ProcLogger
+		if logger, err = mlog.NewProcLogger(mlog.ProcLoggerOptions{
+			RotatingFileOptions: mlog.RotatingFileOptions{
 				Dir:      optLogDir,
 				Filename: unit.CanonicalName(),
 			},

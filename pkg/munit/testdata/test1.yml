@@ -1,0 +1,16 @@
+name: task-1
+kind: once
+group: group-echo
+command:
+  - echo
+  - once
+  - $HOME
+---
+name: task-2
+kind: daemon
+group: group-echo
+count: 3
+shell: /bin/bash
+command:
+  - sleep 1 && echo hello world
+---

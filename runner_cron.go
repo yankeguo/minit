@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/guoyk93/grace/gracelog"
+	"github.com/guoyk93/minit/pkg/mlog"
 	"github.com/guoyk93/minit/pkg/munit"
 	"github.com/robfig/cron/v3"
 )
@@ -12,7 +12,7 @@ const KindCron = "cron"
 
 type CronRunner struct {
 	munit.Unit
-	logger gracelog.ProcLogger
+	logger mlog.ProcLogger
 }
 
 func (r *CronRunner) Run(ctx context.Context) {
@@ -36,7 +36,7 @@ func (r *CronRunner) Run(ctx context.Context) {
 	<-cr.Stop().Done()
 }
 
-func NewCronRunner(unit munit.Unit, logger gracelog.ProcLogger) (Runner, error) {
+func NewCronRunner(unit munit.Unit, logger mlog.ProcLogger) (Runner, error) {
 	if len(unit.Command) == 0 {
 		return nil, fmt.Errorf("没有指定命令，检查 command 字段")
 	}
