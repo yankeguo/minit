@@ -24,7 +24,7 @@ func setupSysctl() (err error) {
 		ks := []string{"/proc", "sys"}
 		ks = append(ks, strings.Split(k, ".")...)
 		filename := filepath.Join(ks...)
-		log.Printf("写入内核参数 %s=%s", k, v)
+		LOG.Printf("写入内核参数 %s=%s", k, v)
 		if err = ioutil.WriteFile(filename, []byte(v), 0644); err != nil {
 			err = fmt.Errorf("无法写入内核参数 %s=%s: %s", k, v, err.Error())
 			return

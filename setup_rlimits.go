@@ -65,7 +65,7 @@ func setupRLimits() (err error) {
 			err = fmt.Errorf("无法获取 RLIMIT_%s: %s", name, err.Error())
 			return
 		}
-		log.Printf("获取 RLIMIT_%s=%s:%s", name, formatRLimitValue(limit.Cur), formatRLimitValue(limit.Max))
+		LOG.Printf("获取 RLIMIT_%s=%s:%s", name, formatRLimitValue(limit.Cur), formatRLimitValue(limit.Max))
 		if strings.Contains(val, ":") {
 			splits := strings.Split(val, ":")
 			if len(splits) != 2 {
@@ -86,7 +86,7 @@ func setupRLimits() (err error) {
 			}
 			limit.Max = limit.Cur
 		}
-		log.Printf("设置 RLIMIT_%s=%s:%s", name, formatRLimitValue(limit.Cur), formatRLimitValue(limit.Max))
+		LOG.Printf("设置 RLIMIT_%s=%s:%s", name, formatRLimitValue(limit.Cur), formatRLimitValue(limit.Max))
 		if err = syscall.Setrlimit(res, &limit); err != nil {
 			err = fmt.Errorf("无法设置 RLIMIT_%s=%s: %s", name, val, err.Error())
 			return

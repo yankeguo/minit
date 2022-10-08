@@ -22,15 +22,15 @@ func setupWebDAV() (err error) {
 	if envPort == "" {
 		envPort = "7486"
 	}
-	log.Printf("启动 WebDAV 服务: 路径 %s 端口 %s", envRoot, envPort)
+	LOG.Printf("启动 WebDAV 服务: 路径 %s 端口 %s", envRoot, envPort)
 	h := &webdav.Handler{
 		FileSystem: webdav.Dir(envRoot),
 		LockSystem: webdav.NewMemLS(),
 		Logger: func(req *http.Request, err error) {
 			if err != nil {
-				log.Printf("WebDAV: %s %s: %s", req.Method, req.URL.Path, err.Error())
+				LOG.Printf("WebDAV: %s %s: %s", req.Method, req.URL.Path, err.Error())
 			} else {
-				log.Printf("WebDAV: %s %s", req.Method, req.URL.Path)
+				LOG.Printf("WebDAV: %s %s", req.Method, req.URL.Path)
 			}
 		},
 	}
@@ -52,7 +52,7 @@ func setupWebDAV() (err error) {
 	go func() {
 		for {
 			if err := s.ListenAndServe(); err != nil {
-				log.Printf("无法启动 WebDAV 服务器: %s", err.Error())
+				LOG.Printf("无法启动 WebDAV 服务器: %s", err.Error())
 			}
 			time.Sleep(time.Second * 10)
 		}

@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 	"github.com/guoyk93/grace/gracelog"
+	"github.com/guoyk93/minit/pkg/munit"
 	"github.com/robfig/cron/v3"
 )
 
 const KindCron = "cron"
 
 type CronRunner struct {
-	Unit
+	munit.Unit
 	logger gracelog.ProcLogger
 }
 
@@ -35,7 +36,7 @@ func (r *CronRunner) Run(ctx context.Context) {
 	<-cr.Stop().Done()
 }
 
-func NewCronRunner(unit Unit, logger gracelog.ProcLogger) (Runner, error) {
+func NewCronRunner(unit munit.Unit, logger gracelog.ProcLogger) (Runner, error) {
 	if len(unit.Command) == 0 {
 		return nil, fmt.Errorf("没有指定命令，检查 command 字段")
 	}

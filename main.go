@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/guoyk93/grace/gracelog"
 	"github.com/guoyk93/minit/pkg/mexec"
+	"github.com/guoyk93/minit/pkg/munit"
 	"os"
 	"os/signal"
 	"regexp"
@@ -24,7 +25,7 @@ var (
 )
 
 var (
-	log gracelog.ProcLogger
+	LOG gracelog.ProcLogger
 	EXE = mexec.NewManager()
 )
 
@@ -59,7 +60,7 @@ func main() {
 		return
 	}
 
-	if log, err = gracelog.NewProcLogger(gracelog.ProcLoggerOptions{
+	if LOG, err = gracelog.NewProcLogger(gracelog.ProcLoggerOptions{
 		ConsolePrefix: "[minit] ",
 		RotatingFileOptions: gracelog.RotatingFileOptions{
 			Dir:      optLogDir,
@@ -73,7 +74,7 @@ func main() {
 		GitHash = "UNKNOWN"
 	}
 
-	log.Print("minit (#" + GitHash + ")")
+	LOG.Print("minit (#" + GitHash + ")")
 
 	// 自述文件
 	setupBanner()
@@ -98,49 +99,22 @@ func main() {
 		return
 	}
 
-	// 载入单元
-	var units []Unit
-	if units, err = LoadDir(optUnitDir); err != nil {
-		return
-	}
-
-	// 载入环境变量
+	// load units
+	loader := munit.NewLoader()
 	var (
-		extraUnit Unit
-		extraOK   bool
+		units []munit.Unit
+		skips []munit.Unit
 	)
-	if extraUnit, extraOK, err = LoadEnvMain(); err != nil {
+	if units, skips, err = loader.Load(munit.LoadOptions{
+		Args: os.Args[1:],
+		Env:  true,
+		Dir:  optUnitDir,
+	}); err != nil {
 		return
 	}
-	if extraOK {
-		units = append(units, extraUnit)
-	}
 
-	// 载入命令参数
-	if extraUnit, extraOK, err = LoadArgsMain(); err != nil {
-		return
-	}
-	if extraOK {
-		units = append(units, extraUnit)
-	}
-
-	// 检查单元命名
-	unitNames := map[string]bool{"minit": true}
-	for _, unit := range units {
-		if unit.Name == "" {
-			err = fmt.Errorf("缺少单元名称，检查 name 字段")
-			return
-		}
-		if !UnitNamePattern.MatchString(unit.Name) {
-			err = fmt.Errorf("单元名称 %s 不符合规则，检查 name 字段", unit.Name)
-			return
-		}
-		if unitNames[unit.Name] {
-			err = fmt.Errorf("单元名称 %s 重复出现，检查 name 字段", unit.Name)
-			return
-		}
-		unitNames[unit.Name] = true
-		log.Printf("载入单元 %s/%s", unit.Kind, unit.Name)
+	for _, skip := range skips {
+		LOG.Print("unit skipped: " + skip.Name)
 	}
 
 	// 控制器组, L1 是 render (渲染配置文件), L2 是 once (一次性命令), L3 是 daemon 和 cron
@@ -185,7 +159,7 @@ func main() {
 	}
 
 	if len(runners[RunnerL3]) == 0 && optQuickExit {
-		log.Printf("没有 L3 任务")
+		LOG.Printf("没有 L3 任务")
 		return
 	}
 
@@ -201,16 +175,16 @@ func main() {
 		}(runner)
 	}
 
-	log.Printf("启动完毕")
+	LOG.Printf("启动完毕")
 
 	// 启动僵尸进程清理工具
-	setupZombies(log)
+	setupZombies(LOG)
 
 	// 等待信号并退出
 	chSig := make(chan os.Signal, 1)
 	signal.Notify(chSig, syscall.SIGINT, syscall.SIGTERM)
 	sig := <-chSig
-	log.Printf("接收到信号: %s", sig.String())
+	LOG.Printf("接收到信号: %s", sig.String())
 
 	// 关闭主环境
 	cancel()
