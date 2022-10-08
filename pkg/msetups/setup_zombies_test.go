@@ -1,6 +1,6 @@
 //go:build linux
 
-package main
+package msetups
 
 import (
 	"github.com/stretchr/testify/require"

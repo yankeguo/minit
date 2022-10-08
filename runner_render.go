@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/guoyk93/grace/gracetmpl"
 	"github.com/guoyk93/minit/pkg/mlog"
+	"github.com/guoyk93/minit/pkg/mrunners"
 	"github.com/guoyk93/minit/pkg/munit"
 	"io/ioutil"
 	"os"
@@ -40,7 +40,7 @@ func (r *RenderRunner) Run(ctx context.Context) {
 				r.logger.Errorf("无法读取文件: %s", name)
 				continue
 			}
-			tmpl := template.New("__main__").Funcs(gracetmpl.Funcs).Option("missingkey=zero")
+			tmpl := template.New("__main__").Funcs(mrunners.Funcs).Option("missingkey=zero")
 			if tmpl, err = tmpl.Parse(string(buf)); err != nil {
 				r.logger.Errorf("无法解析文件 %s: %s", name, err.Error())
 				continue

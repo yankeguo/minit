@@ -1,15 +1,18 @@
 //go:build linux
 
-package main
+package msetups
 
 import (
 	"fmt"
+	"github.com/guoyk93/minit/pkg/mlog"
 	"golang.org/x/sys/unix"
 	"os"
 	"strconv"
 	"strings"
 	"syscall"
 )
+
+const Unlimited = "unlimited"
 
 var (
 	knownRLimitNames = map[string]int{
@@ -35,7 +38,7 @@ func decodeRLimitValue(v *uint64, s string) (err error) {
 	if s == "-" || s == "" {
 		return
 	}
-	if strings.ToLower(s) == "unlimited" {
+	if strings.ToLower(s) == Unlimited {
 		*v = unix.RLIM_INFINITY
 	} else {
 		if *v, err = strconv.ParseUint(s, 10, 64); err != nil {
@@ -47,13 +50,17 @@ func decodeRLimitValue(v *uint64, s string) (err error) {
 
 func formatRLimitValue(v uint64) string {
 	if v == unix.RLIM_INFINITY {
-		return "unlimited"
+		return Unlimited
 	} else {
 		return strconv.FormatUint(v, 10)
 	}
 }
 
-func setupRLimits() (err error) {
+func init() {
+	Register(30, setupRLimits)
+}
+
+func setupRLimits(logger mlog.ProcLogger) (err error) {
 	for name, res := range knownRLimitNames {
 		key := "MINIT_RLIMIT_" + name
 		val := strings.TrimSpace(os.Getenv(key))
@@ -62,22 +69,22 @@ func setupRLimits() (err error) {
 		}
 		var limit syscall.Rlimit
 		if err = syscall.Getrlimit(res, &limit); err != nil {
-			err = fmt.Errorf("无法获取 RLIMIT_%s: %s", name, err.Error())
+			err = fmt.Errorf("failed getting rlimit_%s: %s", name, err.Error())
 			return
 		}
-		LOG.Printf("获取 RLIMIT_%s=%s:%s", name, formatRLimitValue(limit.Cur), formatRLimitValue(limit.Max))
+		logger.Printf("current rlimit_%s=%s:%s", name, formatRLimitValue(limit.Cur), formatRLimitValue(limit.Max))
 		if strings.Contains(val, ":") {
 			splits := strings.Split(val, ":")
 			if len(splits) != 2 {
-				err = fmt.Errorf("无效的环境变量 %s=%s", key, val)
+				err = fmt.Errorf("invalid environment variable %s=%s", key, val)
 				return
 			}
 			if err = decodeRLimitValue(&limit.Cur, splits[0]); err != nil {
-				err = fmt.Errorf("无效的环境变量 %s=%s: %s", key, val, err.Error())
+				err = fmt.Errorf("invalid environment variable %s=%s: %s", key, val, err.Error())
 				return
 			}
 			if err = decodeRLimitValue(&limit.Max, splits[1]); err != nil {
-				err = fmt.Errorf("无效的环境变量 %s=%s: %s", key, val, err.Error())
+				err = fmt.Errorf("invalid environment variable %s=%s: %s", key, val, err.Error())
 				return
 			}
 		} else {
@@ -86,9 +93,9 @@ func setupRLimits() (err error) {
 			}
 			limit.Max = limit.Cur
 		}
-		LOG.Printf("设置 RLIMIT_%s=%s:%s", name, formatRLimitValue(limit.Cur), formatRLimitValue(limit.Max))
+		logger.Printf("setting rlimit_%s=%s:%s", name, formatRLimitValue(limit.Cur), formatRLimitValue(limit.Max))
 		if err = syscall.Setrlimit(res, &limit); err != nil {
-			err = fmt.Errorf("无法设置 RLIMIT_%s=%s: %s", name, val, err.Error())
+			err = fmt.Errorf("failed setting rlimit_%s=%s: %s", name, val, err.Error())
 			return
 		}
 	}

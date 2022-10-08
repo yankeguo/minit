@@ -2,7 +2,7 @@ package mlog
 
 import (
 	"bufio"
-	"github.com/guoyk93/grace"
+	"github.com/guoyk93/gg"
 	"io"
 	"sync"
 )
@@ -88,7 +88,7 @@ func MultiOutput(outputs ...Output) Output {
 }
 
 func (pc *multiOutput) Close() error {
-	eg := grace.NewErrorGroup()
+	eg := gg.NewErrorGroup()
 	for _, output := range pc.outputs {
 		eg.Add(output.Close())
 	}
@@ -108,7 +108,7 @@ func (pc *multiOutput) Write(buf []byte) (n int, err error) {
 
 // ReadFrom implements ReaderFrom
 func (pc *multiOutput) ReadFrom(r io.Reader) (n int64, err error) {
-	eg := grace.NewErrorGroup()
+	eg := gg.NewErrorGroup()
 	wg := &sync.WaitGroup{}
 
 	var (
@@ -126,13 +126,17 @@ func (pc *multiOutput) ReadFrom(r io.Reader) (n int64, err error) {
 		go func() {
 			defer wg.Done()
 			_, err := out.ReadFrom(childR)
-			grace.IgnoreEOF(&err)
+			if err == io.EOF {
+				err = nil
+			}
 			eg.Add(err)
 		}()
 	}
 
 	_, err = io.Copy(io.MultiWriter(ws...), r)
-	grace.IgnoreEOF(&err)
+	if err == io.EOF {
+		err = nil
+	}
 	for _, c := range cs {
 		_ = c.Close()
 	}

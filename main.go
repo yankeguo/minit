@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/guoyk93/minit/pkg/mexec"
 	"github.com/guoyk93/minit/pkg/mlog"
+	"github.com/guoyk93/minit/pkg/msetups"
 	"github.com/guoyk93/minit/pkg/munit"
 	"os"
 	"os/signal"
@@ -76,26 +77,8 @@ func main() {
 
 	LOG.Print("minit (#" + GitHash + ")")
 
-	// 自述文件
-	setupBanner()
-
-	// 内核参数
-	if err = setupSysctl(); err != nil {
-		return
-	}
-
-	// 资源限制
-	if err = setupRLimits(); err != nil {
-		return
-	}
-
-	// 透明大页
-	if err = setupTHP(); err != nil {
-		return
-	}
-
-	// WebDAV
-	if err = setupWebDAV(); err != nil {
+	// run through setups
+	if err = msetups.Setup(LOG); err != nil {
 		return
 	}
 
@@ -176,9 +159,6 @@ func main() {
 	}
 
 	LOG.Printf("启动完毕")
-
-	// 启动僵尸进程清理工具
-	setupZombies(LOG)
 
 	// 等待信号并退出
 	chSig := make(chan os.Signal, 1)

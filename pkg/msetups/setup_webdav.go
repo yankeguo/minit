@@ -1,7 +1,8 @@
-package main
+package msetups
 
 import (
 	"fmt"
+	"github.com/guoyk93/minit/pkg/mlog"
 	"golang.org/x/net/webdav"
 	"net/http"
 	"os"
@@ -9,28 +10,32 @@ import (
 	"time"
 )
 
-func setupWebDAV() (err error) {
+func init() {
+	Register(50, setupWebDAV)
+}
+
+func setupWebDAV(logger mlog.ProcLogger) (err error) {
 	envRoot := strings.TrimSpace(os.Getenv("MINIT_WEBDAV_ROOT"))
 	if envRoot == "" {
 		return
 	}
 	if err = os.MkdirAll(envRoot, 0755); err != nil {
-		err = fmt.Errorf("无法初始化 WebDAV 根目录: %s: %s", envRoot, err.Error())
+		err = fmt.Errorf("failed initializing WebDAV root: %s: %s", envRoot, err.Error())
 		return
 	}
 	envPort := strings.TrimSpace(os.Getenv("MINIT_WEBDAV_PORT"))
 	if envPort == "" {
 		envPort = "7486"
 	}
-	LOG.Printf("启动 WebDAV 服务: 路径 %s 端口 %s", envRoot, envPort)
+	logger.Printf("WebDAV started: root=%s, port=%s", envRoot, envPort)
 	h := &webdav.Handler{
 		FileSystem: webdav.Dir(envRoot),
 		LockSystem: webdav.NewMemLS(),
 		Logger: func(req *http.Request, err error) {
 			if err != nil {
-				LOG.Printf("WebDAV: %s %s: %s", req.Method, req.URL.Path, err.Error())
+				logger.Printf("WebDAV: %s %s: %s", req.Method, req.URL.Path, err.Error())
 			} else {
-				LOG.Printf("WebDAV: %s %s", req.Method, req.URL.Path)
+				logger.Printf("WebDAV: %s %s", req.Method, req.URL.Path)
 			}
 		},
 	}
@@ -52,7 +57,7 @@ func setupWebDAV() (err error) {
 	go func() {
 		for {
 			if err := s.ListenAndServe(); err != nil {
-				LOG.Printf("无法启动 WebDAV 服务器: %s", err.Error())
+				logger.Printf("failed running WebDAV: %s", err.Error())
 			}
 			time.Sleep(time.Second * 10)
 		}

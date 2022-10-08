@@ -1,6 +1,6 @@
 //go:build linux
 
-package main
+package msetups
 
 import (
 	"bytes"
@@ -14,14 +14,20 @@ import (
 	"time"
 )
 
-func setupZombies(log mlog.ProcLogger) {
+func init() {
+	Register(60, setupZombies)
+}
+
+func setupZombies(log mlog.ProcLogger) (err error) {
 	// 如果自己不是 PID 1，则不负责清理僵尸进程
 	if os.Getpid() != 1 {
-		log.Print("minit 并未作为 PID=1 进程运行，忽略僵尸进程清理")
+		log.Print("minit is not running as PID 1, skipping cleaning up zombies")
 		return
 	}
 
 	go runZombieCleaner(log)
+
+	return
 }
 
 func runZombieCleaner(log mlog.ProcLogger) {
@@ -57,7 +63,7 @@ func cleanZombieProcesses(log mlog.ProcLogger) {
 		pids []int
 	)
 	if pids, err = findZombieProcesses(); err != nil {
-		log.Print("无法查询僵尸进程:", err.Error())
+		log.Print("failed checking zombies:", err.Error())
 		return
 	}
 
@@ -133,5 +139,5 @@ func waitZombieProcess(log mlog.ProcLogger, pid int) {
 			break
 		}
 	}
-	log.Printf("已清理僵尸进程 %d", pid)
+	log.Printf("zombie cleaned %d", pid)
 }

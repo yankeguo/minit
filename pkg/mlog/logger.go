@@ -2,7 +2,7 @@ package mlog
 
 import (
 	"fmt"
-	"github.com/guoyk93/grace"
+	"github.com/guoyk93/gg"
 	"io"
 	"os"
 )
@@ -79,7 +79,7 @@ func NewProcLogger(opts ProcLoggerOptions) (pl ProcLogger, err error) {
 }
 
 func (pl *procLogger) Close() error {
-	eg := grace.NewErrorGroup()
+	eg := gg.NewErrorGroup()
 	eg.Add(pl.out.Close())
 	eg.Add(pl.err.Close())
 	return eg.Unwrap()
