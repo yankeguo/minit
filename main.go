@@ -90,7 +90,6 @@ func main() {
 				Unit: unit,
 				Exec: exem,
 				Logger: gg.Must(mlog.NewProcLogger(mlog.ProcLoggerOptions{
-					ConsolePrefix: "[" + unit.Kind + "/" + unit.Name + "] ",
 					RotatingFileOptions: mlog.RotatingFileOptions{
 						Dir:      optLogDir,
 						Filename: unit.Name,
