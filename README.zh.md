@@ -250,7 +250,7 @@ MINIT_SYSCTL=vm.max_map_count=262144,vm.swappiness=60
 
 ## 赞助
 
-访问 <https://guoyk.xyz/donation>
+访问 <https://guoyk.net/donation>
 
 ## 许可证
 
