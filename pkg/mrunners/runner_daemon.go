@@ -24,8 +24,8 @@ type runnerDaemon struct {
 }
 
 func (r *runnerDaemon) Do(ctx context.Context) {
-	r.Logger.Printf("runner started")
-	defer r.Logger.Printf("runner exited")
+	r.Print("started")
+	defer r.Print("exited")
 
 forLoop:
 	for {
@@ -35,14 +35,14 @@ forLoop:
 
 		var err error
 		if err = r.Exec.Execute(r.Unit.ExecuteOptions(r.Logger)); err != nil {
-			r.Logger.Errorf("failed execute: %s", err.Error())
+			r.Error("failed executing:" + err.Error())
 		}
 
 		if ctx.Err() != nil {
 			break forLoop
 		}
 
-		r.Logger.Printf("restart in 5s")
+		r.Print("restarting")
 
 		timer := time.NewTimer(time.Second * 5)
 		select {

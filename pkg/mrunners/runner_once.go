@@ -22,10 +22,11 @@ type runnerOnce struct {
 }
 
 func (r *runnerOnce) Do(ctx context.Context) {
-	r.Logger.Printf("runner started")
-	defer r.Logger.Printf("runner exited")
+	r.Print("started")
+	defer r.Print("exited")
+
 	if err := r.Exec.Execute(r.Unit.ExecuteOptions(r.Logger)); err != nil {
-		r.Logger.Errorf("failed executing: %s", err.Error())
+		r.Error("failed executing: " + err.Error())
 		return
 	}
 }

@@ -3,6 +3,7 @@ package mrunners
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"github.com/guoyk93/minit/pkg/munit"
 	"os"
 	"path/filepath"
@@ -26,9 +27,38 @@ type runnerRender struct {
 	RunnerOptions
 }
 
+func (r *runnerRender) doFile(ctx context.Context, name string, env map[string]string) (err error) {
+	var buf []byte
+	if buf, err = os.ReadFile(name); err != nil {
+		err = fmt.Errorf("failed reading %s: %s", name, err.Error())
+		return
+	}
+	tmpl := template.New("__main__").Funcs(Funcs).Option("missingkey=zero")
+	if tmpl, err = tmpl.Parse(string(buf)); err != nil {
+		err = fmt.Errorf("failed loading %s: %s", name, err.Error())
+		return
+	}
+	out := &bytes.Buffer{}
+	if err = tmpl.Execute(out, map[string]interface{}{
+		"Env": env,
+	}); err != nil {
+		err = fmt.Errorf("failed rendering %s: %s", name, err.Error())
+		return
+	}
+	content := out.Bytes()
+	if !r.Unit.Raw {
+		content = sanitizeLines(content)
+	}
+	if err = os.WriteFile(name, content, 0755); err != nil {
+		err = fmt.Errorf("failed writing %s: %s", name, err.Error())
+		return
+	}
+	return
+}
+
 func (r *runnerRender) Do(ctx context.Context) {
-	r.Logger.Printf("runner started")
-	defer r.Logger.Printf("runner exited")
+	r.Print("started")
+	defer r.Print("exited")
 
 	env := osEnviron()
 
@@ -36,36 +66,15 @@ func (r *runnerRender) Do(ctx context.Context) {
 		var err error
 		var names []string
 		if names, err = filepath.Glob(filePattern); err != nil {
-			r.Logger.Errorf("glob %s failed: %s", filePattern, err.Error())
+			r.Error(fmt.Sprintf("failed globbing: %s: %s", filePattern, err.Error()))
 			continue
 		}
 		for _, name := range names {
-			var buf []byte
-			if buf, err = os.ReadFile(name); err != nil {
-				r.Logger.Errorf("failed reading: %s", name)
-				continue
+			if err = r.doFile(ctx, name, env); err == nil {
+				r.Print("done rendering: " + name)
+			} else {
+				r.Error("failed rendering: " + name + ": " + err.Error())
 			}
-			tmpl := template.New("__main__").Funcs(Funcs).Option("missingkey=zero")
-			if tmpl, err = tmpl.Parse(string(buf)); err != nil {
-				r.Logger.Errorf("failed loading %s: %s", name, err.Error())
-				continue
-			}
-			out := &bytes.Buffer{}
-			if err = tmpl.Execute(out, map[string]interface{}{
-				"Env": env,
-			}); err != nil {
-				r.Logger.Errorf("failed rendering %s: %s", name, err.Error())
-				continue
-			}
-			content := out.Bytes()
-			if !r.Unit.Raw {
-				content = sanitizeLines(content)
-			}
-			if err = os.WriteFile(name, content, 0755); err != nil {
-				r.Logger.Errorf("failed writing %s: %s", name, err.Error())
-				continue
-			}
-			r.Logger.Printf("render finished: %s", name)
 		}
 	}
 }

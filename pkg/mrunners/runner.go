@@ -27,6 +27,14 @@ type RunnerOptions struct {
 	Logger mlog.ProcLogger
 }
 
+func (ro RunnerOptions) Print(message string) {
+	ro.Logger.Print("minit: " + ro.Unit.Kind + "/" + ro.Unit.Name + ": " + message)
+}
+
+func (ro RunnerOptions) Error(message string) {
+	ro.Logger.Error("minit: " + ro.Unit.Kind + "/" + ro.Unit.Name + ": " + message)
+}
+
 type RunnerFactory = gg.F12[RunnerOptions, Runner, error]
 
 func Register(name string, factory RunnerFactory) {

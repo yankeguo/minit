@@ -15,6 +15,8 @@ import (
 )
 
 type ExecuteOptions struct {
+	Name string
+
 	Dir     string
 	Shell   string
 	Env     map[string]string
@@ -160,7 +162,7 @@ func (m *manager) Execute(opts ExecuteOptions) (err error) {
 		return
 	}
 
-	opts.Logger.Print("process started")
+	opts.Logger.Print("minit: " + opts.Name + ": process started")
 
 	// streaming
 	go opts.Logger.Out().ReadFrom(outPipe)
@@ -168,13 +170,13 @@ func (m *manager) Execute(opts ExecuteOptions) (err error) {
 
 	// wait for process
 	if err = cmd.Wait(); err != nil {
-		opts.Logger.Error("process exited:", err.Error())
+		opts.Logger.Error("minit: " + opts.Name + ": process exited with error: " + err.Error())
 
 		if opts.IgnoreExecError {
 			err = nil
 		}
 	} else {
-		opts.Logger.Print("process exited")
+		opts.Logger.Print("minit: " + opts.Name + ": process exited")
 	}
 
 	m.delChildPID(cmd.Process.Pid)

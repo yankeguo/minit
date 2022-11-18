@@ -24,10 +24,10 @@ var (
 
 func exit(err *error) {
 	if *err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "[%s] exited with error: %s\n", "minit", (*err).Error())
+		_, _ = fmt.Fprintf(os.Stderr, "%s: exited with error: %s\n", "minit", (*err).Error())
 		os.Exit(1)
 	} else {
-		_, _ = fmt.Fprintf(os.Stdout, "[%s] exited\n", "minit")
+		_, _ = fmt.Fprintf(os.Stdout, "%s: exited\n", "minit")
 	}
 }
 
@@ -50,7 +50,7 @@ func main() {
 	gg.Must0(os.MkdirAll(optLogDir, 0755))
 
 	log := gg.Must(mlog.NewProcLogger(mlog.ProcLoggerOptions{
-		ConsolePrefix: "[minit] ",
+		ConsolePrefix: "minit: ",
 		RotatingFileOptions: mlog.RotatingFileOptions{
 			Dir:      optLogDir,
 			Filename: "minit",
@@ -59,7 +59,7 @@ func main() {
 
 	exem := mexec.NewManager()
 
-	log.Print("minit (#" + GitHash + ")")
+	log.Print("starting (#" + GitHash + ")")
 
 	// run through setups
 	gg.Must0(msetups.Setup(log))
@@ -133,7 +133,7 @@ func main() {
 		}(runner)
 	}
 
-	log.Printf("booted")
+	log.Printf("started")
 
 	// wait for signals
 	chSig := make(chan os.Signal, 1)

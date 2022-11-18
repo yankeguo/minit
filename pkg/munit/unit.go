@@ -70,6 +70,8 @@ func (u Unit) RequireCron() error {
 
 func (u Unit) ExecuteOptions(logger mlog.ProcLogger) mexec.ExecuteOptions {
 	return mexec.ExecuteOptions{
+		Name: u.Kind + "/" + u.Name,
+
 		Dir:     u.Dir,
 		Shell:   u.Shell,
 		Env:     u.Env,
