@@ -57,8 +57,8 @@ func (r *runnerRender) doFile(ctx context.Context, name string, env map[string]s
 }
 
 func (r *runnerRender) Do(ctx context.Context) {
-	r.Print("started")
-	defer r.Print("exited")
+	r.Print("controller started")
+	defer r.Print("controller exited")
 
 	env := osEnviron()
 

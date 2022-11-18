@@ -22,8 +22,8 @@ type runnerOnce struct {
 }
 
 func (r *runnerOnce) Do(ctx context.Context) {
-	r.Print("started")
-	defer r.Print("exited")
+	r.Print("controller started")
+	defer r.Print("controller exited")
 
 	if err := r.Exec.Execute(r.Unit.ExecuteOptions(r.Logger)); err != nil {
 		r.Error("failed executing: " + err.Error())

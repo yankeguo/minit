@@ -24,8 +24,8 @@ type runnerDaemon struct {
 }
 
 func (r *runnerDaemon) Do(ctx context.Context) {
-	r.Print("started")
-	defer r.Print("exited")
+	r.Print("controller started")
+	defer r.Print("controller exited")
 
 forLoop:
 	for {

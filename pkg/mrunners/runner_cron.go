@@ -30,8 +30,8 @@ type runnerCron struct {
 }
 
 func (r *runnerCron) Do(ctx context.Context) {
-	r.Print("started")
-	defer r.Print("exited")
+	r.Print("controller started")
+	defer r.Print("controller exited")
 
 	cr := cron.New(cron.WithLogger(cron.PrintfLogger(r.Logger)))
 	_, err := cr.AddFunc(r.Unit.Cron, func() {
