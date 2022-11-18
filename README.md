@@ -1,7 +1,5 @@
 # minit
 
-[![main](https://github.com/guoyk93/minit/actions/workflows/main.yml/badge.svg)](https://github.com/guoyk93/minit/actions/workflows/main.yml)
-
 The missing `init` daemon for container
 
 [简体中文](README.zh.md)
@@ -14,7 +12,7 @@ Due to various reasons, codebase is detached from upstream.
 
 ## Donation
 
-View <https://guoyk.xyz/donation>
+View <https://guoyk.net/donation>
 
 ## Credits
 
