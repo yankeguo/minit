@@ -118,6 +118,22 @@ ENTRYPOINT ["/minit"]
 * `gbk18030`
 * `gbk`
 
+## 增加环境变量
+
+在 `once`, `daemon` 和 `cron` 类型的单元中，可以使用 `env` 字段增加额外的环境变量
+
+比如
+
+```yaml
+kind: daemon
+name: demo-daemon-1
+env:
+  AAA: BBB
+command:
+  - echo
+  - $AAA
+```
+
 ## 使用 `Shell`
 
 上述配置单元的 `command` 数组默认状态下等价于 `argv` 系统调用，如果想要使用基于 `Shell` 的多行命令，使用以下方式
