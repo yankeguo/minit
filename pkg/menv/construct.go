@@ -14,6 +14,7 @@ const (
 // Construct create the env map with current system environ, extra and rendering MINIT_ENV_ prefixed keys
 func Construct(extra map[string]string) (envs map[string]string, err error) {
 	envs = make(map[string]string)
+	// system env
 	for _, item := range os.Environ() {
 		splits := strings.SplitN(item, "=", 2)
 		var k, v string
@@ -25,7 +26,9 @@ func Construct(extra map[string]string) (envs map[string]string, err error) {
 			envs[k] = v
 		}
 	}
+	// merge extra env
 	Merge(envs, extra)
+	// render MINIT_ENV_XXX
 	for k, v := range envs {
 		if !strings.HasPrefix(k, PrefixMinitEnv) {
 			continue
