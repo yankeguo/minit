@@ -2,6 +2,7 @@ package mexec
 
 import (
 	"errors"
+	"github.com/guoyk93/minit/pkg/menv"
 	"github.com/guoyk93/minit/pkg/mlog"
 	"github.com/guoyk93/minit/pkg/shellquote"
 	"golang.org/x/text/encoding"
@@ -92,20 +93,11 @@ func (m *manager) Execute(opts ExecuteOptions) (err error) {
 	}
 
 	// build env
-	env := make(map[string]string)
-
-	for _, item := range os.Environ() {
-		splits := strings.SplitN(item, "=", 2)
-		var k, v string
-		if len(splits) > 0 {
-			k = splits[0]
-			if len(splits) > 1 {
-				v = splits[1]
-			}
-			env[k] = v
-		}
+	var env map[string]string
+	if env, err = menv.Construct(opts.Env); err != nil {
+		err = errors.New("failed constructing environment variables: " + err.Error())
+		return
 	}
-	MergeEnv(env, opts.Env)
 
 	// build argv
 	if opts.Shell != "" {

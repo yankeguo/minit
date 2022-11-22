@@ -1,11 +1,11 @@
-package mexec
+package menv
 
 import (
 	"github.com/stretchr/testify/require"
 	"testing"
 )
 
-func TestMergeEnv(t *testing.T) {
+func TestMerge(t *testing.T) {
 	m := map[string]string{
 		"a": "b",
 		"c": "d",
@@ -15,7 +15,7 @@ func TestMergeEnv(t *testing.T) {
 		"c":  "e",
 		"h":  "j",
 	}
-	MergeEnv(m, m2)
+	Merge(m, m2)
 	require.Equal(t, 2, len(m))
 	require.Equal(t, "e", m["c"])
 	require.Equal(t, "j", m["h"])

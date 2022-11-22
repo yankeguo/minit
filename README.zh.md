@@ -37,7 +37,7 @@ ENTRYPOINT ["/minit"]
 
 * `render`
 
-  `render` 类型配置单元最先运行（优先级 L1)，一般用于渲染配置文件
+  `render` 类型配置单元最先运行（优先级 L1)，一般用于渲染配置文件，可使用函数参考 [pkg/mtmpl/funcs.go] 文件
 
   如下示例
 
@@ -132,6 +132,22 @@ env:
 command:
   - echo
   - $AAA
+```
+
+## 渲染环境变量
+
+凡是以 `MINIT_ENV_` 为前缀开头的环境变量，会执行模板渲染，并传递给进程，可使用函数参考 [pkg/mtmpl/funcs.go] 文件。
+
+比如:
+
+```
+MINIT_ENV_MY_IP={{netResolveIP "google.com"}}
+```
+
+会设置对应的环境变量
+
+```
+MY_IP=172.217.160.110
 ```
 
 ## 使用 `Shell`

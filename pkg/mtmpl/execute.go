@@ -5,7 +5,8 @@ import (
 	"text/template"
 )
 
-func Execute(src string, data any) (buf []byte, err error) {
+// Execute render text template with predefined funcs
+func Execute(src string, data any) (out []byte, err error) {
 	var t *template.Template
 	if t, err = template.
 		New("__main__").
@@ -18,6 +19,6 @@ func Execute(src string, data any) (buf []byte, err error) {
 	if err = t.Execute(o, data); err != nil {
 		return
 	}
-	buf = o.Bytes()
+	out = o.Bytes()
 	return
 }

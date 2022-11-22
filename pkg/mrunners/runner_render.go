@@ -5,11 +5,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/guoyk93/gg"
+	"github.com/guoyk93/minit/pkg/menv"
 	"github.com/guoyk93/minit/pkg/mtmpl"
 	"github.com/guoyk93/minit/pkg/munit"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 func init() {
@@ -55,10 +55,14 @@ func (r *runnerRender) Do(ctx context.Context) {
 	r.Print("controller started")
 	defer r.Print("controller exited")
 
-	env := osEnviron()
+	env, err := menv.Construct(r.Unit.Env)
+
+	if err != nil {
+		r.Error("failed constructing environments variables: " + err.Error())
+		return
+	}
 
 	for _, filePattern := range r.Unit.Files {
-		var err error
 		var names []string
 		if names, err = filepath.Glob(filePattern); err != nil {
 			r.Error(fmt.Sprintf("failed globbing: %s: %s", filePattern, err.Error()))
@@ -72,18 +76,6 @@ func (r *runnerRender) Do(ctx context.Context) {
 			}
 		}
 	}
-}
-
-func osEnviron() map[string]string {
-	out := make(map[string]string)
-	envs := os.Environ()
-	for _, entry := range envs {
-		splits := strings.SplitN(entry, "=", 2)
-		if len(splits) == 2 {
-			out[strings.TrimSpace(splits[0])] = strings.TrimSpace(splits[1])
-		}
-	}
-	return out
 }
 
 func sanitizeLines(s []byte) []byte {
