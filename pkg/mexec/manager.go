@@ -119,6 +119,9 @@ func (m *manager) Execute(opts ExecuteOptions) (err error) {
 	if opts.Shell != "" {
 		cmd.Stdin = strings.NewReader(strings.Join(opts.Command, "\n"))
 	}
+	for k, v := range env {
+		cmd.Env = append(cmd.Env, k+"="+v)
+	}
 	cmd.Dir = opts.Dir
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		Setpgid: true,
