@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/guoyk93/gg"
+	"github.com/guoyk93/minit/pkg/mtmpl"
 	"github.com/guoyk93/minit/pkg/munit"
 	"os"
 	"path/filepath"
 	"strings"
-	"text/template"
 )
 
 func init() {
@@ -33,19 +34,13 @@ func (r *runnerRender) doFile(ctx context.Context, name string, env map[string]s
 		err = fmt.Errorf("failed reading %s: %s", name, err.Error())
 		return
 	}
-	tmpl := template.New("__main__").Funcs(Funcs).Option("missingkey=zero")
-	if tmpl, err = tmpl.Parse(string(buf)); err != nil {
-		err = fmt.Errorf("failed loading %s: %s", name, err.Error())
-		return
-	}
-	out := &bytes.Buffer{}
-	if err = tmpl.Execute(out, map[string]interface{}{
+	var content []byte
+	if content, err = mtmpl.Execute(string(buf), gg.M{
 		"Env": env,
 	}); err != nil {
 		err = fmt.Errorf("failed rendering %s: %s", name, err.Error())
 		return
 	}
-	content := out.Bytes()
 	if !r.Unit.Raw {
 		content = sanitizeLines(content)
 	}

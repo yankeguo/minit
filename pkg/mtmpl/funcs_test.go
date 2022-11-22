@@ -1,4 +1,4 @@
-package mrunners
+package mtmpl
 
 import (
 	"bytes"
