@@ -81,42 +81,53 @@ func main() {
 	}
 
 	// load runners
-	var runners []mrunners.Runner
+	var (
+		runnersS []mrunners.Runner
+		runnersL []mrunners.Runner
+	)
 
-	for _, unit := range units {
-		runners = append(
-			runners,
-			gg.Must(mrunners.Create(mrunners.RunnerOptions{
-				Unit: unit,
-				Exec: exem,
-				Logger: gg.Must(mlog.NewProcLogger(mlog.ProcLoggerOptions{
-					RotatingFileOptions: mlog.RotatingFileOptions{
-						Dir:      optLogDir,
-						Filename: unit.Name,
-					},
+	{
+		var runners []mrunners.Runner
+
+		// convert units to runners
+		for _, unit := range units {
+			runners = append(
+				runners,
+				gg.Must(mrunners.Create(mrunners.RunnerOptions{
+					Unit: unit,
+					Exec: exem,
+					Logger: gg.Must(mlog.NewProcLogger(mlog.ProcLoggerOptions{
+						RotatingFileOptions: mlog.RotatingFileOptions{
+							Dir:      optLogDir,
+							Filename: unit.Name,
+						},
+					})),
 				})),
-			})),
-		)
-	}
+			)
+		}
 
-	sort.Slice(runners, func(i, j int) bool {
-		return runners[i].Order < runners[j].Order
-	})
+		// sort runners
+		sort.Slice(runners, func(i, j int) bool {
+			return runners[i].Order < runners[j].Order
+		})
 
-	// run and remove short runners
-	var n int
-	for _, runner := range runners {
-		if runner.Long {
-			runners[n] = runner
-			n++
-		} else {
-			runner.Func.Do(context.Background())
+		// split short runners and long runners
+		for _, runner := range runners {
+			if runner.Long {
+				runnersL = append(runnersL, runner)
+			} else {
+				runnersS = append(runnersS, runner)
+			}
 		}
 	}
-	runners = runners[:n]
+
+	// execute short runners
+	for _, runner := range runnersS {
+		runner.Func.Do(context.Background())
+	}
 
 	// quick exit
-	if len(runners) == 0 && optQuickExit {
+	if len(runnersL) == 0 && optQuickExit {
 		log.Printf("no long runners and MINIT_QUICK_EXIT is set")
 		return
 	}
@@ -125,7 +136,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	wg := &sync.WaitGroup{}
 
-	for _, runner := range runners {
+	for _, runner := range runnersL {
 		wg.Add(1)
 		go func(runner mrunners.Runner) {
 			runner.Func.Do(ctx)
