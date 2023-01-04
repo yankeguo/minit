@@ -100,7 +100,7 @@ func main() {
 	}
 
 	sort.Slice(runners, func(i, j int) bool {
-		return runners[i].Order > runners[j].Order
+		return runners[i].Order < runners[j].Order
 	})
 
 	// run and remove short runners
@@ -144,7 +144,7 @@ func main() {
 	// shutdown context
 	cancel()
 
-	// dely 3 seconds
+	// delay 3 seconds
 	time.Sleep(time.Second * 3)
 
 	// broadcast signals
