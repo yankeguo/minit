@@ -18,7 +18,7 @@ func init() {
 			return
 		}
 
-		runner.Order = 20
+		runner.Order = 10
 		runner.Func = &runnerRender{RunnerOptions: opts}
 		return
 	})
