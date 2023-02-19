@@ -11,7 +11,7 @@ func TestLog(t *testing.T) {
 	os.MkdirAll(filepath.Join("testdata", "logger"), 0755)
 	os.WriteFile(filepath.Join("testdata", "logger", ".gitignore"), []byte("*.log"), 0644)
 	log, err := NewProcLogger(ProcLoggerOptions{
-		RotatingFileOptions: &RotatingFileOptions{
+		FileOptions: &RotatingFileOptions{
 			Dir:      filepath.Join("testdata", "logger"),
 			Filename: "test",
 		},

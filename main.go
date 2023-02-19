@@ -64,8 +64,8 @@ func main() {
 	gg.Must0(os.MkdirAll(optLogDir, 0755))
 
 	log := gg.Must(mlog.NewProcLogger(mlog.ProcLoggerOptions{
-		RotatingFileOptions: createRotatingFileOptions(optLogDir, "minit"),
-		ConsolePrefix:       "minit: ",
+		FileOptions:   createRotatingFileOptions(optLogDir, "minit"),
+		ConsolePrefix: "minit: ",
 	}))
 
 	exem := mexec.NewManager()
@@ -108,7 +108,7 @@ func main() {
 					Unit: unit,
 					Exec: exem,
 					Logger: gg.Must(mlog.NewProcLogger(mlog.ProcLoggerOptions{
-						RotatingFileOptions: createRotatingFileOptions(optLogDir, unit.Name),
+						FileOptions: createRotatingFileOptions(optLogDir, unit.Name),
 					})),
 				})),
 			)

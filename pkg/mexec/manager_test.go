@@ -17,7 +17,7 @@ func TestNewManager(t *testing.T) {
 	os.RemoveAll(filepath.Join("testdata", "test.err.log"))
 
 	logger, err := mlog.NewProcLogger(mlog.ProcLoggerOptions{
-		RotatingFileOptions: &mlog.RotatingFileOptions{
+		FileOptions: &mlog.RotatingFileOptions{
 			Dir:      "testdata",
 			Filename: "test",
 		},

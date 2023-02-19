@@ -8,13 +8,12 @@ import (
 )
 
 type ProcLoggerOptions struct {
-	*RotatingFileOptions
-
-	ConsoleOut io.Writer
-	ConsoleErr io.Writer
-
+	ConsoleOut    io.Writer
+	ConsoleErr    io.Writer
 	ConsolePrefix string
-	FilePrefix    string
+
+	FilePrefix  string
+	FileOptions *RotatingFileOptions
 }
 
 type ProcLogger interface {
@@ -38,14 +37,8 @@ func NewProcLogger(opts ProcLoggerOptions) (pl ProcLogger, err error) {
 	if opts.ConsoleErr == nil {
 		opts.ConsoleErr = os.Stderr
 	}
-	if opts.MaxFileSize == 0 {
-		opts.MaxFileSize = 128 * 1024 * 1024
-	}
-	if opts.MaxFileCount == 0 {
-		opts.MaxFileCount = 5
-	}
 
-	if opts.RotatingFileOptions == nil {
+	if opts.FileOptions == nil {
 		pl = &procLogger{
 			out: NewWriterOutput(opts.ConsoleOut, []byte(opts.ConsolePrefix), nil),
 			err: NewWriterOutput(opts.ConsoleErr, []byte(opts.ConsolePrefix), nil),
@@ -53,22 +46,29 @@ func NewProcLogger(opts ProcLoggerOptions) (pl ProcLogger, err error) {
 		return
 	}
 
+	if opts.FileOptions.MaxFileSize == 0 {
+		opts.FileOptions.MaxFileSize = 128 * 1024 * 1024
+	}
+	if opts.FileOptions.MaxFileCount == 0 {
+		opts.FileOptions.MaxFileCount = 5
+	}
+
 	var fileOut io.WriteCloser
 	if fileOut, err = NewRotatingFile(RotatingFileOptions{
-		Dir:          opts.Dir,
-		Filename:     opts.Filename + ".out",
-		MaxFileSize:  opts.MaxFileSize,
-		MaxFileCount: opts.MaxFileCount,
+		Dir:          opts.FileOptions.Dir,
+		Filename:     opts.FileOptions.Filename + ".out",
+		MaxFileSize:  opts.FileOptions.MaxFileSize,
+		MaxFileCount: opts.FileOptions.MaxFileCount,
 	}); err != nil {
 		return
 	}
 
 	var fileErr io.WriteCloser
 	if fileErr, err = NewRotatingFile(RotatingFileOptions{
-		Dir:          opts.Dir,
-		Filename:     opts.Filename + ".err",
-		MaxFileSize:  opts.MaxFileSize,
-		MaxFileCount: opts.MaxFileCount,
+		Dir:          opts.FileOptions.Dir,
+		Filename:     opts.FileOptions.Filename + ".err",
+		MaxFileSize:  opts.FileOptions.MaxFileSize,
+		MaxFileCount: opts.FileOptions.MaxFileCount,
 	}); err != nil {
 		return
 	}
