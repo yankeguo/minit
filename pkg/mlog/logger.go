@@ -8,7 +8,7 @@ import (
 )
 
 type ProcLoggerOptions struct {
-	RotatingFileOptions
+	*RotatingFileOptions
 
 	ConsoleOut io.Writer
 	ConsoleErr io.Writer
@@ -43,6 +43,14 @@ func NewProcLogger(opts ProcLoggerOptions) (pl ProcLogger, err error) {
 	}
 	if opts.MaxFileCount == 0 {
 		opts.MaxFileCount = 5
+	}
+
+	if opts.RotatingFileOptions == nil {
+		pl = &procLogger{
+			out: NewWriterOutput(opts.ConsoleOut, []byte(opts.ConsolePrefix), nil),
+			err: NewWriterOutput(opts.ConsoleErr, []byte(opts.ConsolePrefix), nil),
+		}
+		return
 	}
 
 	var fileOut io.WriteCloser

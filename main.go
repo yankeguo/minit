@@ -22,6 +22,20 @@ var (
 	GitHash = "UNKNOWN"
 )
 
+const (
+	dirNone = "none"
+)
+
+func createRotatingFileOptions(dir string, name string) *mlog.RotatingFileOptions {
+	if dir == dirNone {
+		return nil
+	}
+	return &mlog.RotatingFileOptions{
+		Dir:      dir,
+		Filename: name,
+	}
+}
+
 func exit(err *error) {
 	if *err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%s: exited with error: %s\n", "minit", (*err).Error())
@@ -50,11 +64,8 @@ func main() {
 	gg.Must0(os.MkdirAll(optLogDir, 0755))
 
 	log := gg.Must(mlog.NewProcLogger(mlog.ProcLoggerOptions{
-		ConsolePrefix: "minit: ",
-		RotatingFileOptions: mlog.RotatingFileOptions{
-			Dir:      optLogDir,
-			Filename: "minit",
-		},
+		RotatingFileOptions: createRotatingFileOptions(optLogDir, "minit"),
+		ConsolePrefix:       "minit: ",
 	}))
 
 	exem := mexec.NewManager()
@@ -97,10 +108,7 @@ func main() {
 					Unit: unit,
 					Exec: exem,
 					Logger: gg.Must(mlog.NewProcLogger(mlog.ProcLoggerOptions{
-						RotatingFileOptions: mlog.RotatingFileOptions{
-							Dir:      optLogDir,
-							Filename: unit.Name,
-						},
+						RotatingFileOptions: createRotatingFileOptions(optLogDir, unit.Name),
 					})),
 				})),
 			)

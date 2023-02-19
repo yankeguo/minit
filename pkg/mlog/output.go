@@ -31,6 +31,10 @@ type writerOutput struct {
 }
 
 func (w *writerOutput) Write(p []byte) (n int, err error) {
+	if len(w.pfx) == 0 && len(w.sfx) == 0 {
+		n, err = w.w.Write(p)
+		return
+	}
 	if n, err = w.w.Write(
 		append(
 			append(w.pfx, p...),
