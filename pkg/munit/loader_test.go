@@ -19,3 +19,18 @@ func TestNewLoader(t *testing.T) {
 	require.Len(t, skipped, 4)
 	require.Equal(t, "task-4", units[0].Name)
 }
+
+func TestDupOrMakeMap(t *testing.T) {
+	var o map[string]any
+	dupOrMakeMap(&o)
+	require.NotNil(t, o)
+
+	m1a := map[string]string{
+		"a": "b",
+	}
+	m1b := m1a
+	dupOrMakeMap(&m1a)
+	m1a["c"] = "d"
+	require.Equal(t, "d", m1a["c"])
+	require.Equal(t, "", m1b["c"])
+}

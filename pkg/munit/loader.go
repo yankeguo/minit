@@ -2,9 +2,9 @@ package munit
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -112,15 +112,33 @@ func (ld *Loader) Load(opts LoadOptions) (output []Unit, skipped []Unit, err err
 		if unit.Count > 1 {
 			for i := 0; i < unit.Count; i++ {
 				subUnit := unit
-				subUnit.Name = fmt.Sprintf("%s-%d", unit.Name, i+1)
+				subUnit.Name = unit.Name + "-" + strconv.Itoa(i+1)
 				subUnit.Count = 1
+				dupOrMakeMap(&subUnit.Env)
+				subUnit.Env["MINIT_UNIT_NAME"] = subUnit.Name
+				subUnit.Env["MINIT_UNIT_SUB_ID"] = strconv.Itoa(i + 1)
+
 				output = append(output, subUnit)
 			}
 		} else {
 			unit.Count = 1
+			dupOrMakeMap(&unit.Env)
+			unit.Env["MINIT_UNIT_NAME"] = unit.Name
+			unit.Env["MINIT_UNIT_SUB_ID"] = "1"
+
 			output = append(output, unit)
 		}
 	}
 
 	return
+}
+
+func dupOrMakeMap[T comparable, U any](m *map[T]U) {
+	nm := make(map[T]U)
+	if *m != nil {
+		for k, v := range *m {
+			nm[k] = v
+		}
+	}
+	*m = nm
 }
