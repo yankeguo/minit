@@ -8,7 +8,7 @@ require (
 	github.com/stretchr/testify v1.8.0
 	golang.org/x/net v0.0.0-20220927171203-f486391704dc
 	golang.org/x/sys v0.0.0-20220928140112-f11e5e49a4ec
-	golang.org/x/text v0.3.7
+	golang.org/x/text v0.3.8
 	gopkg.in/yaml.v3 v3.0.1
 )
 
