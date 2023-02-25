@@ -6,9 +6,9 @@ require (
 	github.com/guoyk93/gg v0.0.0-20221008090600-17d21088ebf2
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/stretchr/testify v1.8.0
-	golang.org/x/net v0.0.0-20220927171203-f486391704dc
-	golang.org/x/sys v0.0.0-20220928140112-f11e5e49a4ec
-	golang.org/x/text v0.3.7
+	golang.org/x/net v0.7.0
+	golang.org/x/sys v0.5.0
+	golang.org/x/text v0.7.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
