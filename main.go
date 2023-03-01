@@ -27,14 +27,11 @@ const (
 	dirNone = "none"
 )
 
-func createRotatingFileOptions(dir string, name string) *mlog.RotatingFileOptions {
+func mkdirUnlessNone(dir string) error {
 	if dir == dirNone {
 		return nil
 	}
-	return &mlog.RotatingFileOptions{
-		Dir:      dir,
-		Filename: name,
-	}
+	return os.MkdirAll(dir, 0755)
 }
 
 func exit(err *error) {
@@ -73,12 +70,8 @@ func main() {
 	envStr("MINIT_LOG_DIR", &optLogDir)
 	envBool("MINIT_QUICK_EXIT", &optQuickExit)
 
-	if optUnitDir != dirNone {
-		rg.Must0(os.MkdirAll(optUnitDir, 0755))
-	}
-	if optLogDir != dirNone {
-		rg.Must0(os.MkdirAll(optLogDir, 0755))
-	}
+	rg.Must0(mkdirUnlessNone(optUnitDir))
+	rg.Must0(mkdirUnlessNone(optLogDir))
 
 	createLogger := func(name string, pfx string) (mlog.ProcLogger, error) {
 		var rfo *mlog.RotatingFileOptions
