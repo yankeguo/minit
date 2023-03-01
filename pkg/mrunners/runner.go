@@ -3,17 +3,20 @@ package mrunners
 import (
 	"context"
 	"errors"
-	"github.com/guoyk93/gg"
 	"github.com/guoyk93/minit/pkg/mexec"
 	"github.com/guoyk93/minit/pkg/mlog"
 	"github.com/guoyk93/minit/pkg/munit"
 	"sync"
 )
 
+type RunnerAction interface {
+	Do(ctx context.Context)
+}
+
 type Runner struct {
-	Order int
-	Long  bool
-	Func  gg.D10[context.Context]
+	Order  int
+	Long   bool
+	Action RunnerAction
 }
 
 var (
@@ -35,7 +38,7 @@ func (ro RunnerOptions) Error(message string) {
 	ro.Logger.Error("minit: " + ro.Unit.Kind + "/" + ro.Unit.Name + ": " + message)
 }
 
-type RunnerFactory = gg.F12[RunnerOptions, Runner, error]
+type RunnerFactory = func(opts RunnerOptions) (Runner, error)
 
 func Register(name string, factory RunnerFactory) {
 	factoriesLock.Lock()

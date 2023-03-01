@@ -12,7 +12,7 @@ func init() {
 		}
 
 		runner.Order = 20
-		runner.Func = &runnerOnce{RunnerOptions: opts}
+		runner.Action = &runnerOnce{RunnerOptions: opts}
 		return
 	})
 }

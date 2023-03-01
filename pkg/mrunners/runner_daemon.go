@@ -14,7 +14,7 @@ func init() {
 
 		runner.Order = 40
 		runner.Long = true
-		runner.Func = &runnerDaemon{RunnerOptions: opts}
+		runner.Action = &runnerDaemon{RunnerOptions: opts}
 		return
 	})
 }

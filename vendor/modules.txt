@@ -1,17 +1,16 @@
 # github.com/davecgh/go-spew v1.1.1
 ## explicit
 github.com/davecgh/go-spew/spew
-# github.com/guoyk93/gg v0.0.0-20221008090600-17d21088ebf2
-## explicit; go 1.19
-github.com/guoyk93/gg
-github.com/guoyk93/gg/ggos
+# github.com/guoyk93/rg v1.0.0
+## explicit; go 1.18
+github.com/guoyk93/rg
 # github.com/pmezard/go-difflib v1.0.0
 ## explicit
 github.com/pmezard/go-difflib/difflib
 # github.com/robfig/cron/v3 v3.0.1
 ## explicit; go 1.12
 github.com/robfig/cron/v3
-# github.com/stretchr/testify v1.8.0
+# github.com/stretchr/testify v1.8.1
 ## explicit; go 1.13
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/require

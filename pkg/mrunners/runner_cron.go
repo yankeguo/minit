@@ -20,7 +20,7 @@ func init() {
 
 		runner.Order = 30
 		runner.Long = true
-		runner.Func = &runnerCron{RunnerOptions: opts}
+		runner.Action = &runnerCron{RunnerOptions: opts}
 		return
 	})
 }

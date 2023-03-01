@@ -6,5 +6,5 @@ import (
 )
 
 func TestSetup(t *testing.T) {
-	require.Equal(t, 10, setups[0].A)
+	require.Equal(t, 10, setups[0].order)
 }

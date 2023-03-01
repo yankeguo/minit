@@ -2,7 +2,7 @@ package mlog
 
 import (
 	"fmt"
-	"github.com/guoyk93/gg"
+	"github.com/guoyk93/minit/pkg/merrs"
 	"io"
 	"os"
 )
@@ -87,7 +87,7 @@ func NewProcLogger(opts ProcLoggerOptions) (pl ProcLogger, err error) {
 }
 
 func (pl *procLogger) Close() error {
-	eg := gg.NewErrorGroup()
+	eg := merrs.NewErrorGroup()
 	eg.Add(pl.out.Close())
 	eg.Add(pl.err.Close())
 	return eg.Unwrap()

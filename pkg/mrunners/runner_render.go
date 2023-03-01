@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/guoyk93/gg"
 	"github.com/guoyk93/minit/pkg/menv"
 	"github.com/guoyk93/minit/pkg/mtmpl"
 	"github.com/guoyk93/minit/pkg/munit"
@@ -19,7 +18,7 @@ func init() {
 		}
 
 		runner.Order = 10
-		runner.Func = &runnerRender{RunnerOptions: opts}
+		runner.Action = &runnerRender{RunnerOptions: opts}
 		return
 	})
 }
@@ -35,7 +34,7 @@ func (r *runnerRender) doFile(ctx context.Context, name string, env map[string]s
 		return
 	}
 	var content []byte
-	if content, err = mtmpl.Execute(string(buf), gg.M{
+	if content, err = mtmpl.Execute(string(buf), map[string]any{
 		"Env": env,
 	}); err != nil {
 		err = fmt.Errorf("failed rendering %s: %s", name, err.Error())

@@ -3,16 +3,17 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/guoyk93/gg"
-	"github.com/guoyk93/gg/ggos"
 	"github.com/guoyk93/minit/pkg/mexec"
 	"github.com/guoyk93/minit/pkg/mlog"
 	"github.com/guoyk93/minit/pkg/mrunners"
 	"github.com/guoyk93/minit/pkg/msetups"
 	"github.com/guoyk93/minit/pkg/munit"
+	"github.com/guoyk93/rg"
 	"os"
 	"os/signal"
 	"sort"
+	"strconv"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -45,10 +46,22 @@ func exit(err *error) {
 	}
 }
 
+func envStr(key string, out *string) {
+	if val := strings.TrimSpace(os.Getenv(key)); val != "" {
+		*out = val
+	}
+}
+
+func envBool(key string, out *bool) {
+	if val := strings.TrimSpace(os.Getenv(key)); val != "" {
+		*out, _ = strconv.ParseBool(val)
+	}
+}
+
 func main() {
 	var err error
 	defer exit(&err)
-	defer gg.Guard(&err)
+	defer rg.Guard(&err)
 
 	var (
 		optUnitDir   = "/etc/minit.d"
@@ -56,28 +69,43 @@ func main() {
 		optQuickExit bool
 	)
 
-	ggos.MustEnv("MINIT_UNIT_DIR", &optUnitDir)
-	ggos.MustEnv("MINIT_LOG_DIR", &optLogDir)
-	ggos.BoolEnv("MINIT_QUICK_EXIT", &optQuickExit)
+	envStr("MINIT_UNIT_DIR", &optUnitDir)
+	envStr("MINIT_LOG_DIR", &optLogDir)
+	envBool("MINIT_QUICK_EXIT", &optQuickExit)
 
-	gg.Must0(os.MkdirAll(optUnitDir, 0755))
-	gg.Must0(os.MkdirAll(optLogDir, 0755))
+	if optUnitDir != dirNone {
+		rg.Must0(os.MkdirAll(optUnitDir, 0755))
+	}
+	if optLogDir != dirNone {
+		rg.Must0(os.MkdirAll(optLogDir, 0755))
+	}
 
-	log := gg.Must(mlog.NewProcLogger(mlog.ProcLoggerOptions{
-		FileOptions:   createRotatingFileOptions(optLogDir, "minit"),
-		ConsolePrefix: "minit: ",
-	}))
+	createLogger := func(name string, pfx string) (mlog.ProcLogger, error) {
+		var rfo *mlog.RotatingFileOptions
+		if optLogDir != dirNone {
+			rfo = &mlog.RotatingFileOptions{
+				Dir:      optLogDir,
+				Filename: name,
+			}
+		}
+		return mlog.NewProcLogger(mlog.ProcLoggerOptions{
+			ConsolePrefix: pfx,
+			FileOptions:   rfo,
+		})
+	}
+
+	log := rg.Must(createLogger("minit", "minit: "))
 
 	exem := mexec.NewManager()
 
 	log.Print("starting (#" + GitHash + ")")
 
 	// run through setups
-	gg.Must0(msetups.Setup(log))
+	rg.Must0(msetups.Setup(log))
 
 	// load units
 	loader := munit.NewLoader()
-	units, skips := gg.Must2(
+	units, skips := rg.Must2(
 		loader.Load(
 			munit.LoadOptions{
 				Args: os.Args[1:],
@@ -104,12 +132,10 @@ func main() {
 		for _, unit := range units {
 			runners = append(
 				runners,
-				gg.Must(mrunners.Create(mrunners.RunnerOptions{
-					Unit: unit,
-					Exec: exem,
-					Logger: gg.Must(mlog.NewProcLogger(mlog.ProcLoggerOptions{
-						FileOptions: createRotatingFileOptions(optLogDir, unit.Name),
-					})),
+				rg.Must(mrunners.Create(mrunners.RunnerOptions{
+					Unit:   unit,
+					Exec:   exem,
+					Logger: rg.Must(createLogger(unit.Name, "")),
 				})),
 			)
 		}
@@ -131,7 +157,7 @@ func main() {
 
 	// execute short runners
 	for _, runner := range runnersS {
-		runner.Func.Do(context.Background())
+		runner.Action.Do(context.Background())
 	}
 
 	// quick exit
@@ -147,7 +173,7 @@ func main() {
 	for _, runner := range runnersL {
 		wg.Add(1)
 		go func(runner mrunners.Runner) {
-			runner.Func.Do(ctx)
+			runner.Action.Do(ctx)
 			wg.Done()
 		}(runner)
 	}

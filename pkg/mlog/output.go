@@ -2,7 +2,7 @@ package mlog
 
 import (
 	"bufio"
-	"github.com/guoyk93/gg"
+	"github.com/guoyk93/minit/pkg/merrs"
 	"io"
 	"sync"
 )
@@ -92,7 +92,7 @@ func MultiOutput(outputs ...Output) Output {
 }
 
 func (pc *multiOutput) Close() error {
-	eg := gg.NewErrorGroup()
+	eg := merrs.NewErrorGroup()
 	for _, output := range pc.outputs {
 		eg.Add(output.Close())
 	}
@@ -112,7 +112,7 @@ func (pc *multiOutput) Write(buf []byte) (n int, err error) {
 
 // ReadFrom implements ReaderFrom
 func (pc *multiOutput) ReadFrom(r io.Reader) (n int64, err error) {
-	eg := gg.NewErrorGroup()
+	eg := merrs.NewErrorGroup()
 	wg := &sync.WaitGroup{}
 
 	var (

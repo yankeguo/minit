@@ -1,7 +1,6 @@
-package gg
+package rg
 
 import (
-	"context"
 	"fmt"
 )
 
@@ -13,13 +12,6 @@ func Guard(err *error) {
 		} else {
 			*err = fmt.Errorf("panic: %v", r)
 		}
-	}
-}
-
-// MustContext panic ctx.Err() if not nil
-func MustContext(ctx context.Context) {
-	if ctx.Err() != nil {
-		panic(ctx.Err())
 	}
 }
 
@@ -38,8 +30,6 @@ func Must[T any](v T, err error) T {
 		panic(err)
 	}
 }
-
-// __BEGIN_OF_GENERATION__
 
 // Must2 panic err if not nil, else return remaining values
 func Must2[T1 any, T2 any](v1 T1, v2 T2, err error) (T1, T2) {

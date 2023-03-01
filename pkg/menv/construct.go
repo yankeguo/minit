@@ -1,7 +1,6 @@
 package menv
 
 import (
-	"github.com/guoyk93/gg"
 	"github.com/guoyk93/minit/pkg/mtmpl"
 	"os"
 	"strings"
@@ -35,7 +34,7 @@ func Construct(extra map[string]string) (envs map[string]string, err error) {
 		}
 		k = strings.TrimPrefix(k, PrefixMinitEnv)
 		var buf []byte
-		if buf, err = mtmpl.Execute(v, gg.M{"Env": envs}); err != nil {
+		if buf, err = mtmpl.Execute(v, map[string]any{"Env": envs}); err != nil {
 			return
 		}
 		envs[k] = string(buf)
