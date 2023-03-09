@@ -10,7 +10,7 @@ The missing `init` daemon for container
 
 [简体中文](README.zh.md)
 
-## Installation
+## 1. Installation
 
 You can install `minit` to your own container image by a multi-stage `Dockerfile`
 
@@ -34,15 +34,47 @@ ENTRYPOINT ["/minit"]
 ADD my-service.yml /etc/minit.d/my-service.yml
 ```
 
-## Unit Types
+## 2. Unit Loading
 
-`minit` supports several unit types
+### 2.1 From Files
 
-### Type: `render`
+Add Unit `YAML` files to `/etc/minit.d`
+
+Override default directory by environment variable `MINIT_UNIT_DIR`
+
+Use `---` to separate multiple units in single `YAML` file
+
+### 2.2 From Environment Variable
+
+**Example:**
+
+```dockerfile
+ENV MINIT_MAIN="redis-server /etc/redis.conf"
+ENV MINIT_MAIN_DIR="/work"
+ENV MINIT_MAIN_NAME="main-program"
+ENV MINIT_MAIN_GROUP="super-main"
+ENV MINIT_MAIN_KIND="cron"
+ENV MINIT_MAIN_CRON="* * * * *"
+ENV MINIT_MAIN_CHARSET=gbk18030
+```
+
+### 2.3 From Command Arguments
+
+**Example:**
+
+```dockerfile
+ENTRYPOINT ["/minit"]
+CMD ["redis-server", "/etc/redis.conf"]
+```
+
+
+## 3. Unit Types
+
+### 3.1 Type: `render`
 
 `render` units execute at the very first stage. It renders template files.
 
-See [pkg/mtmpl/funcs](pkg/mtmpl/funcs) for available functions.
+See [pkg/mtmpl/funcs.go](pkg/mtmpl/funcs.go) for available functions.
 
 **Example:**
 
@@ -69,7 +101,7 @@ Since default user for container is `root`, the content of file `/opt/demo.txt` 
 Hello, ROOT
 ```
 
-### Type: `once`
+### 3.2 Type: `once`
 
 `once` units execute after `render` units. It runs command once.
 
@@ -83,7 +115,7 @@ command:
   - once
 ```
 
-### Type: `daemon`
+### 3.3 Type: `daemon`
 
 `daemon` units execute after `render` and `once`. It runs long-running command.
 
@@ -97,7 +129,7 @@ command:
   - 9999
 ```
 
-### Type: `cron`
+### 3.4 Type: `cron`
 
 `cron` units execute after `render` and `once`. It runs command at cron basis.
 
@@ -112,7 +144,9 @@ command:
   - cron
 ```
 
-## Replicas
+## 4. Unit Features
+
+### 4.1 Replicas
 
 If `count` field is set, `minit` will replicate this unit with sequence number suffixed
 
@@ -143,7 +177,7 @@ command:
   - 2
 ```
 
-## Logging
+### 4.2 Logging
 
 **Log Files**
 
@@ -153,9 +187,9 @@ This directory can be overridden by environment `MINIT_LOG_DIR`
 
 Set `MINIT_LOG_DIR=none` to disable file logging and optimize performance of `minit`
 
-**Log Encodings**
+**Console Encoding**
 
-If `charset` field is set, `minit` will transcode command log from other encodings to `utf8`
+If `charset` field is set, `minit` will transcode command console output from other encodings to `utf8`
 
 **Example:**
 
@@ -167,7 +201,7 @@ command:
   - command-that-produces-gbk-logs
 ```
 
-## Extra Environment Variables
+### 4.3 Extra Environment Variables
 
 If `env` field is set, `minit` will append extra environment variables while launching command.
 
@@ -183,7 +217,7 @@ command:
   - $AAA
 ```
 
-## Render Environment Variables
+### 4.4 Render Environment Variables
 
 Any environment with prefix `MINIT_ENV_` will be rendered before passing to command.
 
@@ -199,9 +233,9 @@ command:
   - $MY_IP
 ```
 
-## Using `shell`
+### 4.5 Using `shell` in command units
 
-By default, `command` field will be passed to `exec` syscall with simple environment variable substitution only.
+By default, `command` field will be passed to `exec` syscall, `minit` won't modify ti, except simple environment variable substitution.
 
 If `shell` field is set, `command` field will act as a simple script file.
 
@@ -217,36 +251,7 @@ command: # this is merely a script file
   - fi
 ```
 
-## Unit Loading
-
-### From Files
-
-Unit `YAML` files should locate at `/etc/minit.d`
-
-This directory can be overridden by environment variable `MINIT_UNIT_DIR`
-
-Use `---` to separate multiple units in single `YAML` file
-
-### From Environment Variable
-
-```
-MINIT_MAIN=redis-server /etc/redis.conf
-MINIT_MAIN_DIR=/work
-MINIT_MAIN_NAME=main-program
-MINIT_MAIN_GROUP=super-main
-MINIT_MAIN_KIND=cron
-MINIT_MAIN_CRON=* * * * *
-MINIT_MAIN_CHARSET=gbk18030
-```
-
-### From Arguments
-
-```
-ENTRYPOINT ["/minit"]
-CMD ["redis-server", "/etc/redis.conf"]
-```
-
-## Unit Enabling / Disabling
+### 4.6 Unit Enabling / Disabling
 
 **Grouping**
 
@@ -280,22 +285,22 @@ Example:
 MINIT_DISABLE=once-demo,@demo
 ```
 
-## Extra Features
+## 5. Extra Features
 
-### Zombie Processes Cleaning
+### 5.1 Zombie Processes Cleaning
 
 When running as `PID 1`, `minit` will do zombie process cleaning
 
 This is the responsibility of `PID 1`
 
-### Quick Exit
+### 5.2 Quick Exit
 
 By default, `minit` will keep running even without `daemon` or `cron` units defined.
 
 If you want to use `minit` in `initContainers` or outside of container, you can set envrionment
 variable `MINIT_QUIT_EXIT=true` to let `minit` exit as soon as possible
 
-### Resource limits (ulimit)
+### 5.3 Resource limits (ulimit)
 
 **Warning: this feature need container running at Privileged mode**
 
@@ -332,7 +337,7 @@ MINIT_RLIMIT_NOFILE=128:-           # set soft limit to 128，dont change hard l
 MINIT_RLIMIT_NOFILE=-:unlimited     # don't change soft limit，set hard limit to 'unlimited'
 ```
 
-### Kernel Parameters (sysctl)
+### 5.4 Kernel Parameters (sysctl)
 
 **Warning: this feature need container running at Privileged mode**
 
@@ -346,7 +351,7 @@ Separate multiple entries with `,`
 MINIT_SYSCTL=vm.max_map_count=262144,vm.swappiness=60
 ```
 
-### Transparent Huge Page (THP)
+### 5.5 Transparent Huge Page (THP)
 
 **Warning: this feature need container running at Privileged mode and host `/sys` mounted**
 
@@ -359,7 +364,7 @@ Use environment variable `MINIT_THP` to set THP configuration.
 MINIT_THP=madvise
 ```
 
-### Built-in WebDAV server
+### 5.6 Built-in WebDAV server
 
 By setting environment variable `MINIT_WEBDAV_ROOT`, `minit` will start a built-in WebDAV server at port `7486`
 
@@ -369,14 +374,14 @@ Environment Variables:
 * `MINIT_WEBDAV_PORT`, port of WebDAV server, default to `7486`
 * `MINIT_WEBDAV_USERNAME` and `MINIT_WEBDAV_PASSWORD`, optional basic auth for WebDAV server
 
-### Banner file
+### 5.7 Banner file
 
 By putting a file at `/etc/banner.minit.txt`, `minit` will print it's content at startup
 
-## Donation
+## 6. Donation
 
 View https://guoyk.xyz/donation
 
-## Credits
+## 7. Credits
 
 Guo Y.K., MIT License
