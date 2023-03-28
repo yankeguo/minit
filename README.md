@@ -4,7 +4,7 @@
 [![release](https://github.com/guoyk93/minit/actions/workflows/release.yml/badge.svg)](https://github.com/guoyk93/minit/actions/workflows/release.yml)
 [![Dockerhub](https://img.shields.io/docker/pulls/guoyk/minit)](https://hub.docker.com/r/guoyk/minit)
 [![Patreon Donation](https://img.shields.io/badge/Patreon-Donation-orange)](https://www.patreon.com/guoyk)
-[![Buy Me a Coffee Donation](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Donate-orange)](https://www.buymeacoffee.com/guoyk)
+[![GitHub Sponsors](https://img.shields.io/github/sponsors/guoyk93)](https://github.com/sponsors/guoyk93)
 
 The missing `init` daemon for container
 
