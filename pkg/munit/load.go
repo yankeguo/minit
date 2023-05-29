@@ -13,17 +13,23 @@ import (
 )
 
 func LoadArgs(args []string) (unit Unit, ok bool, err error) {
+	var opts []string
+
 	// fix a history issue
-	if len(args) > 0 {
+	for len(args) > 0 {
 		if filepath.Base(args[0]) == "minit" {
 			args = args[1:]
-			// extract arguments after '--' if existed
-			for i, item := range args {
-				if item == "--" {
-					args = args[i+1:]
-					break
-				}
-			}
+		} else {
+			break
+		}
+	}
+
+	// extract arguments after '--' if existed
+	for i, item := range args {
+		if item == "--" {
+			opts = args[0:i]
+			args = args[i+1:]
+			break
 		}
 	}
 
@@ -35,6 +41,13 @@ func LoadArgs(args []string) (unit Unit, ok bool, err error) {
 		Name:    "arg-main",
 		Kind:    KindDaemon,
 		Command: args,
+	}
+
+	// opts decoding
+	for _, opt := range opts {
+		if strings.HasSuffix(opt, "-"+KindOnce) {
+			unit.Kind = KindOnce
+		}
 	}
 
 	ok = true
