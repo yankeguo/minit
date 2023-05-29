@@ -42,6 +42,13 @@ func (ld *Loader) Load(opts LoadOptions) (output []Unit, skipped []Unit, err err
 	var units []Unit
 
 	// load units
+	if opts.Dir != "" {
+		var dUnits []Unit
+		if dUnits, err = LoadDir(opts.Dir); err != nil {
+			return
+		}
+		units = append(units, dUnits...)
+	}
 	if len(opts.Args) > 0 {
 		var unit Unit
 		var ok bool
@@ -61,13 +68,6 @@ func (ld *Loader) Load(opts LoadOptions) (output []Unit, skipped []Unit, err err
 		if ok {
 			units = append(units, unit)
 		}
-	}
-	if opts.Dir != "" {
-		var dUnits []Unit
-		if dUnits, err = LoadDir(opts.Dir); err != nil {
-			return
-		}
-		units = append(units, dUnits...)
 	}
 
 	// check duplicated name
