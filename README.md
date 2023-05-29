@@ -266,6 +266,8 @@ in `MINIT_ENABLE` will be loaded.
 
 Use format `@group-name` to enable a group of units
 
+Use format `&daemon` to enable a kind of units
+
 Example:
 
 ```text

@@ -14,6 +14,9 @@ func (fm FilterMap) Match(unit Unit) bool {
 	if _, ok := fm[PrefixGroup+unit.Group]; ok {
 		return true
 	}
+	if _, ok := fm[PrefixKind+unit.Kind]; ok {
+		return true
+	}
 	return false
 }
 
@@ -21,7 +24,7 @@ func NewFilterMap(s string) (out FilterMap) {
 	s = strings.TrimSpace(s)
 	for _, item := range strings.Split(s, ",") {
 		item = strings.TrimSpace(item)
-		if item == "" || item == PrefixGroup {
+		if item == "" || item == PrefixGroup || item == PrefixKind {
 			continue
 		}
 		if out == nil {

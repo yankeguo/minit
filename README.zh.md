@@ -202,6 +202,8 @@ CMD ["redis-server", "/etc/redis.conf"]
 
 可以为配置单元设置字段 `group`，然后在上述环境变量使用 `@group` ，设置一组单元的开启和关闭。
 
+使用 `&daemon` 这样的格式，控制一个类型的控制单元的开启和关闭
+
 没有设置 `group` 字段的单元，默认组名为 `default`
 
 ## 快速退出

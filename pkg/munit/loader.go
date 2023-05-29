@@ -16,6 +16,7 @@ const (
 	NameMinit = "minit"
 
 	PrefixGroup = "@"
+	PrefixKind  = "&"
 )
 
 type Loader struct {

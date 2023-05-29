@@ -14,6 +14,15 @@ func TestNewFilterMap(t *testing.T) {
 	fm = NewFilterMap(",,  ,")
 	require.Nil(t, fm)
 
+	fm = NewFilterMap("unit-a,&daemon")
+	require.True(t, fm.Match(Unit{
+		Name: "unit-a",
+	}))
+	require.True(t, fm.Match(Unit{
+		Name: "unit-b",
+		Kind: "daemon",
+	}))
+
 	fm = NewFilterMap("unit-a, ,, @group-b, unit-c,,")
 	require.NotNil(t, fm)
 	require.True(t, fm.Match(Unit{
@@ -43,6 +52,34 @@ func TestNewFilter(t *testing.T) {
 			Group: hex.EncodeToString(buf),
 		}))
 	}
+
+	f = NewFilter("unit-a,&daemon", "")
+	require.False(t, f.Match(Unit{
+		Name: "bla",
+		Kind: KindCron,
+	}))
+	require.True(t, f.Match(Unit{
+		Name: "bla",
+		Kind: KindDaemon,
+	}))
+	require.True(t, f.Match(Unit{
+		Name: "unit-a",
+		Kind: KindCron,
+	}))
+
+	f = NewFilter("", "unit-a,&daemon")
+	require.True(t, f.Match(Unit{
+		Name: "bla",
+		Kind: KindCron,
+	}))
+	require.False(t, f.Match(Unit{
+		Name: "bla",
+		Kind: KindDaemon,
+	}))
+	require.False(t, f.Match(Unit{
+		Name: "unit-a",
+		Kind: KindCron,
+	}))
 
 	f = NewFilter("", "unit-a,,,@group-c,,")
 	require.True(t, f.Match(Unit{
