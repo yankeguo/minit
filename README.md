@@ -54,6 +54,7 @@ ENV MINIT_MAIN_DIR="/work"
 ENV MINIT_MAIN_NAME="main-program"
 ENV MINIT_MAIN_GROUP="super-main"
 ENV MINIT_MAIN_KIND="cron"
+ENV MINIT_MAIN_IMMEDIATE=true
 ENV MINIT_MAIN_CRON="* * * * *"
 ENV MINIT_MAIN_CHARSET=gbk18030
 ```
@@ -139,6 +140,7 @@ command:
 kind: cron
 name: cron-demo
 cron: "* * * * *" # cron expression, support extended syntax by https://github.com/robfig/cron
+immediate: true # execute once on started
 command:
   - echo
   - cron

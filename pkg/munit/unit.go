@@ -44,7 +44,8 @@ type Unit struct {
 	Files []string `yaml:"files"` // files to process
 
 	// for 'cron' only
-	Cron string `yaml:"cron"` // cron syntax
+	Cron      string `yaml:"cron"` // cron syntax
+	Immediate bool   `yaml:"immediate"`
 }
 
 func (u Unit) RequireCommand() error {

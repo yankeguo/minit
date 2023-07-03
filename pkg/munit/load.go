@@ -66,7 +66,10 @@ func LoadEnv() (unit Unit, ok bool, err error) {
 		name = "env-main"
 	}
 
-	var cron string
+	var (
+		cron      string
+		immediate bool
+	)
 
 	kind := strings.TrimSpace(os.Getenv("MINIT_MAIN_KIND"))
 
@@ -79,6 +82,8 @@ func LoadEnv() (unit Unit, ok bool, err error) {
 			err = errors.New("missing environment variable $MINIT_MAIN_CRON while $MINIT_MAIN_KIND is 'cron'")
 			return
 		}
+
+		immediate, _ = strconv.ParseBool(os.Getenv("MINIT_MAIN_IMMEDIATE"))
 	case "":
 		if once, _ := strconv.ParseBool(strings.TrimSpace(os.Getenv("MINIT_MAIN_ONCE"))); once {
 			kind = KindOnce
@@ -96,13 +101,14 @@ func LoadEnv() (unit Unit, ok bool, err error) {
 	}
 
 	unit = Unit{
-		Name:    name,
-		Group:   strings.TrimSpace(os.Getenv("MINIT_MAIN_GROUP")),
-		Kind:    kind,
-		Cron:    cron,
-		Command: cmds,
-		Dir:     strings.TrimSpace(os.Getenv("MINIT_MAIN_DIR")),
-		Charset: strings.TrimSpace(os.Getenv("MINIT_MAIN_CHARSET")),
+		Name:      name,
+		Group:     strings.TrimSpace(os.Getenv("MINIT_MAIN_GROUP")),
+		Kind:      kind,
+		Cron:      cron,
+		Immediate: immediate,
+		Command:   cmds,
+		Dir:       strings.TrimSpace(os.Getenv("MINIT_MAIN_DIR")),
+		Charset:   strings.TrimSpace(os.Getenv("MINIT_MAIN_CHARSET")),
 	}
 
 	ok = true

@@ -101,6 +101,7 @@ ENTRYPOINT ["/minit"]
     kind: cron
     name: cron-sample
     cron: "* * * * *"
+    immediate: true # 启动后立即执行一次
     dir: /work # 指定工作目录
     command:
         - echo
@@ -182,7 +183,9 @@ MINIT_MAIN=redis-server /etc/redis.conf
 MINIT_MAIN_DIR=/work
 MINIT_MAIN_NAME=main-program
 MINIT_MAIN_GROUP=super-main
-MINIT_MAIN_ONCE=false
+MINIT_MAIN_KIND=cron
+MINIT_MAIN_CRON="* * * * *"
+MINIT_MAIN_IMMEDIATE=true
 MINIT_MAIN_CHARSET=gbk18030
 ```
 

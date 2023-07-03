@@ -33,6 +33,12 @@ func (r *runnerCron) Do(ctx context.Context) {
 	r.Print("controller started")
 	defer r.Print("controller exited")
 
+	if r.Unit.Immediate {
+		if err := r.Exec.Execute(r.Unit.ExecuteOptions(r.Logger)); err != nil {
+			r.Error("failed executing: " + err.Error())
+		}
+	}
+
 	cr := cron.New(cron.WithLogger(cron.PrintfLogger(r.Logger)))
 	_, err := cr.AddFunc(r.Unit.Cron, func() {
 		r.Print("triggered")
