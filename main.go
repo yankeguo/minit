@@ -9,6 +9,8 @@ import (
 	"github.com/guoyk93/minit/pkg/msetups"
 	"github.com/guoyk93/minit/pkg/munit"
 	"github.com/guoyk93/rg"
+	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"os/signal"
 	"sort"
@@ -61,14 +63,24 @@ func main() {
 	defer rg.Guard(&err)
 
 	var (
+		optPprofPort = ""
+
 		optUnitDir   = "/etc/minit.d"
 		optLogDir    = "/var/log/minit"
 		optQuickExit bool
 	)
 
+	envStr("MINIT_PPROF_PORT", &optPprofPort)
+
 	envStr("MINIT_UNIT_DIR", &optUnitDir)
 	envStr("MINIT_LOG_DIR", &optLogDir)
 	envBool("MINIT_QUICK_EXIT", &optQuickExit)
+
+	if optPprofPort != "" {
+		go func() {
+			_ = http.ListenAndServe(":"+optPprofPort, nil)
+		}()
+	}
 
 	rg.Must0(mkdirUnlessNone(optUnitDir))
 	rg.Must0(mkdirUnlessNone(optLogDir))
