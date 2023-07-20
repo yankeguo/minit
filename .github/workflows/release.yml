@@ -53,19 +53,6 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}},enable=${{ !startsWith(github.ref, 'refs/tags/v0.') }}
 
-      - name: docker-meta-ubuntu
-        id: meta_ubuntu
-        uses: docker/metadata-action@v4
-        with:
-          images: |-
-            ghcr.io/${{ github.repository }}
-            ${{env.DOCKERHUB_IMAGE_NAME}}
-          tags: |-
-            type=raw,value=ubuntu-latest,enable={{is_default_branch}}
-            type=semver,pattern=ubuntu-{{version}}
-            type=semver,pattern=ubuntu-{{major}}.{{minor}}
-            type=semver,pattern=ubuntu-{{major}},enable=${{ !startsWith(github.ref, 'refs/tags/v0.') }}
-
       - name: docker-build-and-push
         uses: docker/build-push-action@v3
         with:
@@ -76,15 +63,3 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-      - name: docker-build-and-push-ubuntu
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          file: Dockerfile.ubuntu
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          pull: true
-          push: true
-          tags: ${{ steps.meta_ubuntu.outputs.tags }}
-          labels: ${{ steps.meta_ubuntu.outputs.labels }}
