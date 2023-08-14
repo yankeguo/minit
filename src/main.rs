@@ -1,28 +1,8 @@
-use std::env;
-use std::str::FromStr;
+mod env;
+mod logger;
 
-fn env_str(key: &str, out: &mut Option<String>) {
-    match env::var(key) {
-        Ok(val) => {
-            if val.eq_ignore_ascii_case("none") {
-                *out = None
-            } else {
-                *out = Some(val);
-            }
-        }
-        _ => {}
-    }
-}
-
-fn env_bool(key: &str, out: &mut bool) {
-    match env::var(key) {
-        Ok(val) => match <bool as FromStr>::from_str(val.as_str()) {
-            Ok(val) => *out = val,
-            _ => {}
-        },
-        _ => {}
-    }
-}
+use crate::env::{env_bool, env_str};
+use std::fs;
 
 fn main() {
     let mut opt_dir_unit: Option<String> = Some(String::from("/etc/minit.d"));
@@ -32,6 +12,15 @@ fn main() {
     env_str("MINIT_UNIT_DIR", &mut opt_dir_unit);
     env_str("MINIT_LOG_DIR", &mut opt_dir_log);
     env_bool("MINIT_QUICK_EXIT", &mut opt_quick_exit);
+
+    if opt_dir_log.is_some() {
+        let opt_dir_log = opt_dir_log.unwrap();
+        fs::create_dir_all(opt_dir_log).expect("create log directory");
+    }
+
+    if opt_dir_unit.is_some() {
+        let _opt_dir_unit = opt_dir_unit.unwrap();
+    }
 
     println!("minit: starting (#{})", env!("MINIT_COMMIT"));
 }
