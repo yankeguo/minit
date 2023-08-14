@@ -1,48 +1,37 @@
+use std::env;
 use std::str::FromStr;
 
-struct EnvOpts {
-    dir_unit: Option<String>,
-    dir_log: Option<String>,
-    quick_exit: bool,
+fn env_str(key: &str, out: &mut Option<String>) {
+    match env::var(key) {
+        Ok(val) => {
+            if val.eq_ignore_ascii_case("none") {
+                *out = None
+            } else {
+                *out = Some(val);
+            }
+        }
+        _ => {}
+    }
 }
 
-fn get_env_opts() -> EnvOpts {
-    let mut opts = EnvOpts {
-        dir_unit: Some(String::from("/etc/minit.d")),
-        dir_log: None,
-        quick_exit: false,
-    };
-
-    match std::env::var("MINIT_UNIT_DIR") {
-        Ok(val) => {
-            if !val.eq_ignore_ascii_case("none") {
-                opts.dir_unit = Some(val)
-            }
-        }
-        _ => {}
-    }
-
-    match std::env::var("MINIT_LOG_DIR") {
-        Ok(val) => {
-            if !val.eq_ignore_ascii_case("none") {
-                opts.dir_log = Some(val)
-            }
-        }
-        _ => {}
-    }
-
-    match std::env::var("MINIT_QUICK_EXIT") {
-        Ok(val) => match <bool as FromStr>::from_str(&val) {
-            Ok(v) => opts.quick_exit = v,
+fn env_bool(key: &str, out: &mut bool) {
+    match env::var(key) {
+        Ok(val) => match <bool as FromStr>::from_str(val.as_str()) {
+            Ok(val) => *out = val,
             _ => {}
         },
         _ => {}
     }
-
-    opts
 }
 
 fn main() {
-    let _opts = get_env_opts();
+    let mut opt_dir_unit: Option<String> = Some(String::from("/etc/minit.d"));
+    let mut opt_dir_log: Option<String> = None;
+    let mut opt_quick_exit = false;
+
+    env_str("MINIT_UNIT_DIR", &mut opt_dir_unit);
+    env_str("MINIT_LOG_DIR", &mut opt_dir_log);
+    env_bool("MINIT_QUICK_EXIT", &mut opt_quick_exit);
+
     println!("minit: starting (#{})", env!("MINIT_COMMIT"));
 }
