@@ -1,6 +1,6 @@
 module github.com/guoyk93/minit
 
-go 1.19
+go 1.21
 
 require (
 	github.com/guoyk93/rg v1.0.1
