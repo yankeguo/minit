@@ -1,25 +1,27 @@
 use std::env;
 use std::str::FromStr;
 
-pub fn env_str(key: &str, out: &mut Option<String>) {
-    match env::var(key) {
+pub fn env_dir(key: &str, default_value: Option<String>) -> Option<String> {
+    return match env::var(key) {
         Ok(val) => {
             if val.eq_ignore_ascii_case("none") {
-                *out = None
+                None
+            } else if val.is_empty() {
+                default_value
             } else {
-                *out = Some(val);
+                Some(val)
             }
         }
-        _ => {}
-    }
+        _ => None,
+    };
 }
 
-pub fn env_bool(key: &str, out: &mut bool) {
-    match env::var(key) {
+pub fn env_bool(key: &str) -> bool {
+    return match env::var(key) {
         Ok(val) => match <bool as FromStr>::from_str(val.as_str()) {
-            Ok(val) => *out = val,
-            _ => {}
+            Ok(val) => val,
+            _ => false,
         },
-        _ => {}
-    }
+        _ => false,
+    };
 }
