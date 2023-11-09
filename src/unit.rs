@@ -3,6 +3,7 @@ use crate::utils::str_to_bool;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap};
 use std::fs;
+use std::path::Path;
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub enum UnitKind {
@@ -70,6 +71,12 @@ pub fn load_arg_unit(
             opts = args[0..i].iter().cloned().collect();
             args = args[i + 1..].iter().cloned().collect();
             break;
+        }
+    }
+    let arg0 = Path::new(&args[0]);
+    if let Some(file_name) = arg0.file_name() {
+        if file_name.eq_ignore_ascii_case("minit") {
+            args = args[1..].iter().cloned().collect();
         }
     }
     if args.is_empty() {
