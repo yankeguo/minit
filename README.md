@@ -2,9 +2,7 @@
 
 ![MIT License](https://img.shields.io/github/license/yankeguo/minit)
 [![release](https://github.com/yankeguo/minit/actions/workflows/release.yml/badge.svg)](https://github.com/yankeguo/minit/actions/workflows/release.yml)
-[![Dockerhub](https://img.shields.io/docker/pulls/guoyk/minit)](https://hub.docker.com/r/guoyk/minit)
-[![Patreon Donation](https://img.shields.io/badge/Patreon-Donation-orange)](https://www.patreon.com/guoyk)
-[![GitHub Sponsors](https://img.shields.io/github/sponsors/guoyk93)](https://github.com/sponsors/guoyk93)
+[![Dockerhub](https://img.shields.io/docker/pulls/yankeguo/minit)](https://hub.docker.com/r/yankeguo/minit)
 
 The missing `init` daemon for container
 
@@ -15,7 +13,7 @@ The missing `init` daemon for container
 You can install `minit` to your own container image by a multi-stage `Dockerfile`
 
 ```dockerfile
-FROM guoyk/minit:VERSION AS minit
+FROM yankeguo/minit:VERSION AS minit
 # Or using Github Packages
 # FROM ghcr.io/yankeguo/minit:VERSION AS minit
 
@@ -68,7 +66,6 @@ ENTRYPOINT ["/minit"]
 CMD ["redis-server", "/etc/redis.conf"]
 ```
 
-
 ## 3. Unit Types
 
 ### 3.1 Type: `render`
@@ -79,7 +76,7 @@ See [pkg/mtmpl/funcs.go](pkg/mtmpl/funcs.go) for available functions.
 
 **Example:**
 
-* `/etc/minit.d/render-demo.yaml`
+- `/etc/minit.d/render-demo.yaml`
 
 ```yaml
 kind: render
@@ -88,7 +85,7 @@ files:
   - /opt/*.txt
 ```
 
-* `/opt/demo.txt`
+- `/opt/demo.txt`
 
 ```text
 Hello, {{stringsToUpper .Evn.HOME}}
@@ -310,8 +307,8 @@ variable `MINIT_QUIT_EXIT=true` to let `minit` exit as soon as possible
 
 Use environment variable `MINIT_RLIMIT_XXX` to set resource limits
 
-* `unlimited` means no limitation
-* `-` means unchanged
+- `unlimited` means no limitation
+- `-` means unchanged
 
 **Supported:**
 
@@ -374,18 +371,14 @@ By setting environment variable `MINIT_WEBDAV_ROOT`, `minit` will start a built-
 
 Environment Variables:
 
-* `MINIT_WEBDAV_ROOT`, path to serve, `/srv` for example
-* `MINIT_WEBDAV_PORT`, port of WebDAV server, default to `7486`
-* `MINIT_WEBDAV_USERNAME` and `MINIT_WEBDAV_PASSWORD`, optional basic auth for WebDAV server
+- `MINIT_WEBDAV_ROOT`, path to serve, `/srv` for example
+- `MINIT_WEBDAV_PORT`, port of WebDAV server, default to `7486`
+- `MINIT_WEBDAV_USERNAME` and `MINIT_WEBDAV_PASSWORD`, optional basic auth for WebDAV server
 
 ### 5.7 Banner file
 
 By putting a file at `/etc/banner.minit.txt`, `minit` will print it's content at startup
 
-## 6. Donation
-
-View https://guoyk.xyz/donation
-
-## 7. Credits
+## 6. Credits
 
 GUO YANKE, MIT License

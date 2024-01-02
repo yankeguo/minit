@@ -5,7 +5,7 @@
 ## 获取镜像
 
 ```
-guoyk/minit:VERSION
+yankeguo/minit:VERSION
 ```
 
 ## 使用方法
@@ -13,7 +13,7 @@ guoyk/minit:VERSION
 使用多阶段 Dockerfile 来从上述镜像地址导入 `minit` 可执行程序
 
 ```dockerfile
-FROM guoyk/minit AS minit
+FROM yankeguo/minit AS minit
 
 FROM xxxxxxx
 
@@ -33,7 +33,7 @@ ENTRYPOINT ["/minit"]
 
 当前支持以下类型
 
-* `render`
+- `render`
 
   `render` 类型配置单元最先运行（优先级 L1)，一般用于渲染配置文件，可使用函数参考 [pkg/mtmpl/funcs.go] 文件
 
@@ -41,72 +41,72 @@ ENTRYPOINT ["/minit"]
 
   `/etc/minit.d/render-test.yml`
 
-    ```yaml
-    kind: render
-    name: render-test
-    files:
-        - /tmp/*.txt
-    ```
+  ```yaml
+  kind: render
+  name: render-test
+  files:
+    - /tmp/*.txt
+  ```
 
   `/tmp/sample.txt`
 
-    ```text
-    Hello, {{stringsToUpper .Env.HOME}}
-    ```
+  ```text
+  Hello, {{stringsToUpper .Env.HOME}}
+  ```
 
   `minit` 启动时，会按照配置规则，渲染 `/tmp/sample.txt` 文件
 
   由于容器用户默认为 `root`，因此 `/tmp/sample.txt` 文件会被渲染为
 
-    ```text
-    Hello, /ROOT
-    ```
+  ```text
+  Hello, /ROOT
+  ```
 
   可用渲染函数，参见代码中的 `pkg/tmplfuncs/tmplfuncs.go`
 
-* `once`
+- `once`
 
   `once` 类型的配置单元随后运行（优先级 L2），用于执行一次性进程
 
   `/etc/minit.d/sample.yml`
 
-    ```yaml
-    kind: once
-    name: once-sample
-    dir: /work # 指定工作目录
-    command:
-        - echo
-        - once
-    ```
+  ```yaml
+  kind: once
+  name: once-sample
+  dir: /work # 指定工作目录
+  command:
+    - echo
+    - once
+  ```
 
-* `daemon`
+- `daemon`
 
   `daemon` 类型的配置单元，最后启动（优先级 L3），用于执行常驻进程
 
-    ```yaml
-    kind: daemon
-    name: daemon-sample
-    dir: /work # 指定工作目录
-    count: 3 # 如果指定了 count，会启动多个副本
-    command:
-        - sleep
-        - 9999
-    ```
+  ```yaml
+  kind: daemon
+  name: daemon-sample
+  dir: /work # 指定工作目录
+  count: 3 # 如果指定了 count，会启动多个副本
+  command:
+    - sleep
+    - 9999
+  ```
 
-* `cron`
+- `cron`
 
   `cron` 类型的配置单元，最后启动（优先级 L3），用于按照 cron 表达式，执行命令
 
-    ```yaml
-    kind: cron
-    name: cron-sample
-    cron: "* * * * *"
-    immediate: true # 启动后立即执行一次
-    dir: /work # 指定工作目录
-    command:
-        - echo
-        - cron
-    ```
+  ```yaml
+  kind: cron
+  name: cron-sample
+  cron: "* * * * *"
+  immediate: true # 启动后立即执行一次
+  dir: /work # 指定工作目录
+  command:
+    - echo
+    - cron
+  ```
 
 ## 日志文件
 
@@ -120,8 +120,8 @@ ENTRYPOINT ["/minit"]
 
 当前支持
 
-* `gbk18030`
-* `gbk`
+- `gbk18030`
+- `gbk`
 
 ## 增加环境变量
 
@@ -200,8 +200,8 @@ CMD ["redis-server", "/etc/redis.conf"]
 
 可以通过环境变量，打开/关闭特定的单元
 
-* `MINIT_ENABLE`, 逗号分隔, 如果值存在，则为 `白名单模式`，只有指定名称的单元会执行
-* `MINIT_DISABLE`, 逗号分隔, 如果值存在，则为 `黑名单模式`，除了指定名称外的单元会执行
+- `MINIT_ENABLE`, 逗号分隔, 如果值存在，则为 `白名单模式`，只有指定名称的单元会执行
+- `MINIT_DISABLE`, 逗号分隔, 如果值存在，则为 `黑名单模式`，除了指定名称外的单元会执行
 
 可以为配置单元设置字段 `group`，然后在上述环境变量使用 `@group` ，设置一组单元的开启和关闭。
 
@@ -279,19 +279,15 @@ MINIT_SYSCTL=vm.max_map_count=262144,vm.swappiness=60
 
 环境变量:
 
-* `MINIT_WEBDAV_ROOT` 指定要暴露的路径并启动 WebDAV 服务，比如 `/srv`
-* `MINIT_WEBDAV_PORT` 指定 `WebDAV` 服务的端口，默认为 `7486`
-* `MINIT_WEBDAV_USERNAME` 和 `MINIT_WEBDAV_PASSWORD` 指定 `WebDAV` 服务的用户密码，默认不设置用户密码
+- `MINIT_WEBDAV_ROOT` 指定要暴露的路径并启动 WebDAV 服务，比如 `/srv`
+- `MINIT_WEBDAV_PORT` 指定 `WebDAV` 服务的端口，默认为 `7486`
+- `MINIT_WEBDAV_USERNAME` 和 `MINIT_WEBDAV_PASSWORD` 指定 `WebDAV` 服务的用户密码，默认不设置用户密码
 
 可以使用 Cyberduck 来连接 WebDAV 服务器 https://cyberduck.io/
 
 ## 展示自述文件
 
 如果把一个文件放在 `/etc/banner.minit.txt` ，则 `minit` 在启动时会打印其内容
-
-## 赞助
-
-访问 <https://guoyk.net/donation>
 
 ## 许可证
 
