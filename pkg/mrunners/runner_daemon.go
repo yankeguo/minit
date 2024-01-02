@@ -2,8 +2,9 @@ package mrunners
 
 import (
 	"context"
-	"github.com/guoyk93/minit/pkg/munit"
 	"time"
+
+	"github.com/yankeguo/minit/pkg/munit"
 )
 
 func init() {

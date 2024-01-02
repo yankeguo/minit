@@ -2,9 +2,10 @@ package mlog
 
 import (
 	"bufio"
-	"github.com/guoyk93/minit/pkg/merrs"
 	"io"
 	"sync"
+
+	"github.com/yankeguo/minit/pkg/merrs"
 )
 
 // Output interface for single stream log output

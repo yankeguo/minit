@@ -5,13 +5,14 @@ package msetups
 import (
 	"bytes"
 	"fmt"
-	"github.com/guoyk93/minit/pkg/mlog"
 	"io/ioutil"
 	"os"
 	"os/signal"
 	"strconv"
 	"syscall"
 	"time"
+
+	"github.com/yankeguo/minit/pkg/mlog"
 )
 
 func init() {

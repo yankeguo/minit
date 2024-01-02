@@ -1,9 +1,10 @@
 package msetups
 
 import (
-	"github.com/guoyk93/minit/pkg/mlog"
 	"sort"
 	"sync"
+
+	"github.com/yankeguo/minit/pkg/mlog"
 )
 
 type SetupFunc = func(log mlog.ProcLogger) error

@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/guoyk93/minit/pkg/menv"
-	"github.com/guoyk93/minit/pkg/mtmpl"
-	"github.com/guoyk93/minit/pkg/munit"
 	"os"
 	"path/filepath"
+
+	"github.com/yankeguo/minit/pkg/menv"
+	"github.com/yankeguo/minit/pkg/mtmpl"
+	"github.com/yankeguo/minit/pkg/munit"
 )
 
 func init() {

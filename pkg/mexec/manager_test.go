@@ -1,13 +1,14 @@
 package mexec
 
 import (
-	"github.com/guoyk93/minit/pkg/mlog"
-	"github.com/stretchr/testify/require"
 	"os"
 	"path/filepath"
 	"syscall"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
+	"github.com/yankeguo/minit/pkg/mlog"
 )
 
 func TestNewManager(t *testing.T) {

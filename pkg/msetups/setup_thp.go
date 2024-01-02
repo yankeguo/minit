@@ -5,9 +5,10 @@ package msetups
 import (
 	"bytes"
 	"fmt"
-	"github.com/guoyk93/minit/pkg/mlog"
 	"os"
 	"strings"
+
+	"github.com/yankeguo/minit/pkg/mlog"
 )
 
 const (

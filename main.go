@@ -3,12 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/guoyk93/minit/pkg/mexec"
-	"github.com/guoyk93/minit/pkg/mlog"
-	"github.com/guoyk93/minit/pkg/mrunners"
-	"github.com/guoyk93/minit/pkg/msetups"
-	"github.com/guoyk93/minit/pkg/munit"
-	"github.com/guoyk93/rg"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
@@ -19,6 +13,13 @@ import (
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/yankeguo/minit/pkg/mexec"
+	"github.com/yankeguo/minit/pkg/mlog"
+	"github.com/yankeguo/minit/pkg/mrunners"
+	"github.com/yankeguo/minit/pkg/msetups"
+	"github.com/yankeguo/minit/pkg/munit"
+	"github.com/yankeguo/rg"
 )
 
 var (

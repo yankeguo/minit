@@ -1,9 +1,10 @@
 package menv
 
 import (
-	"github.com/guoyk93/minit/pkg/mtmpl"
 	"os"
 	"strings"
+
+	"github.com/yankeguo/minit/pkg/mtmpl"
 )
 
 const (

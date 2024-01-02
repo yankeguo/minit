@@ -2,17 +2,18 @@ package mexec
 
 import (
 	"errors"
-	"github.com/guoyk93/minit/pkg/menv"
-	"github.com/guoyk93/minit/pkg/mlog"
-	"github.com/guoyk93/minit/pkg/shellquote"
-	"golang.org/x/text/encoding"
-	"golang.org/x/text/encoding/simplifiedchinese"
 	"io"
 	"os"
 	"os/exec"
 	"strings"
 	"sync"
 	"syscall"
+
+	"github.com/yankeguo/minit/pkg/menv"
+	"github.com/yankeguo/minit/pkg/mlog"
+	"github.com/yankeguo/minit/pkg/shellquote"
+	"golang.org/x/text/encoding"
+	"golang.org/x/text/encoding/simplifiedchinese"
 )
 
 type ExecuteOptions struct {

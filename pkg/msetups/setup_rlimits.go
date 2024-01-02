@@ -4,12 +4,13 @@ package msetups
 
 import (
 	"fmt"
-	"github.com/guoyk93/minit/pkg/mlog"
-	"golang.org/x/sys/unix"
 	"os"
 	"strconv"
 	"strings"
 	"syscall"
+
+	"github.com/yankeguo/minit/pkg/mlog"
+	"golang.org/x/sys/unix"
 )
 
 const Unlimited = "unlimited"

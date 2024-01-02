@@ -2,9 +2,10 @@ package mlog
 
 import (
 	"fmt"
-	"github.com/guoyk93/minit/pkg/merrs"
 	"io"
 	"os"
+
+	"github.com/yankeguo/minit/pkg/merrs"
 )
 
 type ProcLoggerOptions struct {

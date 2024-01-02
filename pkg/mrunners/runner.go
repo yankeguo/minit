@@ -3,10 +3,11 @@ package mrunners
 import (
 	"context"
 	"errors"
-	"github.com/guoyk93/minit/pkg/mexec"
-	"github.com/guoyk93/minit/pkg/mlog"
-	"github.com/guoyk93/minit/pkg/munit"
 	"sync"
+
+	"github.com/yankeguo/minit/pkg/mexec"
+	"github.com/yankeguo/minit/pkg/mlog"
+	"github.com/yankeguo/minit/pkg/munit"
 )
 
 type RunnerAction interface {

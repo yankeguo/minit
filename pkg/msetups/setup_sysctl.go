@@ -4,10 +4,11 @@ package msetups
 
 import (
 	"fmt"
-	"github.com/guoyk93/minit/pkg/mlog"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/yankeguo/minit/pkg/mlog"
 )
 
 func init() {

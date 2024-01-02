@@ -1,9 +1,9 @@
-module github.com/guoyk93/minit
+module github.com/yankeguo/minit
 
 go 1.21
 
 require (
-	github.com/guoyk93/rg v1.0.1
+	github.com/yankeguo/rg v1.1.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/net v0.19.0

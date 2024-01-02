@@ -1,7 +1,7 @@
 # minit
 
-![MIT License](https://img.shields.io/github/license/guoyk93/minit)
-[![release](https://github.com/guoyk93/minit/actions/workflows/release.yml/badge.svg)](https://github.com/guoyk93/minit/actions/workflows/release.yml)
+![MIT License](https://img.shields.io/github/license/yankeguo/minit)
+[![release](https://github.com/yankeguo/minit/actions/workflows/release.yml/badge.svg)](https://github.com/yankeguo/minit/actions/workflows/release.yml)
 [![Dockerhub](https://img.shields.io/docker/pulls/guoyk/minit)](https://hub.docker.com/r/guoyk/minit)
 [![Patreon Donation](https://img.shields.io/badge/Patreon-Donation-orange)](https://www.patreon.com/guoyk)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/guoyk93)](https://github.com/sponsors/guoyk93)
@@ -17,7 +17,7 @@ You can install `minit` to your own container image by a multi-stage `Dockerfile
 ```dockerfile
 FROM guoyk/minit:VERSION AS minit
 # Or using Github Packages
-# FROM ghcr.io/guoyk93/minit:VERSION AS minit
+# FROM ghcr.io/yankeguo/minit:VERSION AS minit
 
 # Your own build stage
 FROM ubuntu:22.04
