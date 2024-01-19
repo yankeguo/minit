@@ -2,6 +2,7 @@ package mrunners
 
 import (
 	"context"
+	"os"
 
 	"github.com/robfig/cron/v3"
 	"github.com/yankeguo/minit/pkg/munit"
@@ -40,8 +41,11 @@ func (r *runnerCron) Do(ctx context.Context) {
 		}
 	}
 
+	expr := os.ExpandEnv(r.Unit.Cron)
+
 	cr := cron.New(cron.WithLogger(cron.PrintfLogger(r.Logger)))
-	_, err := cr.AddFunc(r.Unit.Cron, func() {
+
+	_, err := cr.AddFunc(expr, func() {
 		r.Print("triggered")
 		if err := r.Exec.Execute(r.Unit.ExecuteOptions(r.Logger)); err != nil {
 			r.Error("failed executing: " + err.Error())
