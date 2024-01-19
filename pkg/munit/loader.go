@@ -126,6 +126,11 @@ func (ld *Loader) Load(opts LoadOptions) (output []Unit, skipped []Unit, err err
 			continue
 		}
 
+		// eval cron
+		if unit.Cron != "" {
+			unit.Cron = os.ExpandEnv(unit.Cron)
+		}
+
 		// replicas
 		if unit.Count > 1 {
 			for i := 0; i < unit.Count; i++ {
