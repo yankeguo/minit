@@ -10,6 +10,7 @@ import (
 func TestNewLoader(t *testing.T) {
 	os.Setenv("MINIT_ENABLE", "@default")
 	os.Setenv("MINIT_DISABLE", "task-3,task-5")
+	os.Setenv("DEBUG_EVERY", "10s")
 	ld := NewLoader()
 	units, skipped, err := ld.Load(LoadOptions{
 		Dir: "testdata",
@@ -19,6 +20,7 @@ func TestNewLoader(t *testing.T) {
 	require.Len(t, units, 1)
 	require.Len(t, skipped, 4)
 	require.Equal(t, "task-4", units[0].Name)
+	require.Equal(t, "@every 10s", units[0].Cron)
 }
 
 func TestDupOrMakeMap(t *testing.T) {

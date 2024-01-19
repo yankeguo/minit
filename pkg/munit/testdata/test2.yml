@@ -7,7 +7,7 @@ command:
 ---
 name: task-4
 kind: cron
-cron: "@every 10s"
+cron: "@every ${DEBUG_EVERY}"
 command:
   - echo
   - cron
