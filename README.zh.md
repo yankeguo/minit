@@ -108,6 +108,12 @@ ENTRYPOINT ["/minit"]
     - cron
   ```
 
+`cron` 字段支持环境变量
+
+```yaml
+cron: $MY_SCHEDULE
+```
+
 ## 日志文件
 
 `minit` 会把每个单元的日志记录在 `/var/log/minit` 文件夹内，使用环境变量 `MINIT_LOG_DIR` 来修改这个目录

@@ -158,6 +158,12 @@ command:
   - cron
 ```
 
+environment variable substitution is supported in `cron` field, for example:
+
+```yaml
+cron: $MY_SCHEDULE
+```
+
 ## 4. Unit Features
 
 ### 4.1 Replicas
