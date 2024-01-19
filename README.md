@@ -44,7 +44,22 @@ Use `---` to separate multiple units in single `YAML` file
 
 ### 2.2 From Environment Variable
 
+#### Prefix with `MINIT_UNIT_XXXX_`
+
 **Example:**
+
+```dockerfile
+ENV MINIT_UNIT_MAIN_COMMAND="redis-server /etc/redis.conf"
+ENV MINIT_UNIT_MAIN_DIR="/work"
+ENV MINIT_UNIT_MAIN_NAME="main-program"
+ENV MINIT_UNIT_MAIN_GROUP="super-main"
+ENV MINIT_UNIT_MAIN_KIND="cron"
+ENV MINIT_UNIT_MAIN_IMMEDIATE=true
+ENV MINIT_UNIT_MAIN_CRON="* * * * *"
+ENV MINIT_UNIT_MAIN_CHARSET=gbk18030
+```
+
+#### DEPRECATED: `MINIT_MAIN`
 
 ```dockerfile
 ENV MINIT_MAIN="redis-server /etc/redis.conf"

@@ -60,13 +60,30 @@ func (ld *Loader) Load(opts LoadOptions) (output []Unit, skipped []Unit, err err
 		}
 	}
 	if opts.Env {
-		var unit Unit
-		var ok bool
-		if unit, ok, err = LoadEnv(); err != nil {
-			return
+		{
+			// legacy minit main
+			var (
+				unit Unit
+				ok   bool
+			)
+			if unit, ok, err = LoadEnv(); err != nil {
+				return
+			} else if ok {
+				units = append(units, unit)
+			}
 		}
-		if ok {
-			units = append(units, unit)
+
+		for _, infix := range DetectEnvInfixes() {
+			var (
+				unit Unit
+				ok   bool
+			)
+			if unit, ok, err = LoadFromEnvWithInfix(infix); err != nil {
+				return
+			}
+			if ok {
+				units = append(units, unit)
+			}
 		}
 	}
 

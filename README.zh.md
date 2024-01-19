@@ -178,15 +178,28 @@ command:
 
 **使用环境变量创建单元**
 
+```dockerfile
+ENV MINIT_UNIT_MAIN_COMMAND="redis-server /etc/redis.conf"
+ENV MINIT_UNIT_MAIN_DIR="/work"
+ENV MINIT_UNIT_MAIN_NAME="main-program"
+ENV MINIT_UNIT_MAIN_GROUP="super-main"
+ENV MINIT_UNIT_MAIN_KIND="cron"
+ENV MINIT_UNIT_MAIN_IMMEDIATE=true
+ENV MINIT_UNIT_MAIN_CRON="* * * * *"
+ENV MINIT_UNIT_MAIN_CHARSET=gbk18030
 ```
-MINIT_MAIN=redis-server /etc/redis.conf
-MINIT_MAIN_DIR=/work
-MINIT_MAIN_NAME=main-program
-MINIT_MAIN_GROUP=super-main
-MINIT_MAIN_KIND=cron
-MINIT_MAIN_CRON="* * * * *"
-MINIT_MAIN_IMMEDIATE=true
-MINIT_MAIN_CHARSET=gbk18030
+
+**已废弃的语法**
+
+```dockerfile
+ENV MINIT_MAIN=redis-server /etc/redis.conf
+ENV MINIT_MAIN_DIR=/work
+ENV MINIT_MAIN_NAME=main-program
+ENV MINIT_MAIN_GROUP=super-main
+ENV MINIT_MAIN_KIND=cron
+ENV MINIT_MAIN_CRON="* * * * *"
+ENV MINIT_MAIN_IMMEDIATE=true
+ENV MINIT_MAIN_CHARSET=gbk18030
 ```
 
 **使用命令行参数创建单元**
