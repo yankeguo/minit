@@ -183,6 +183,14 @@ func LoadFromEnvWithInfix(infix string) (unit Unit, ok bool, err error) {
 		}
 	}
 
+	// blocking
+	if unit.Kind == KindOnce {
+		if nb, err := strconv.ParseBool(strings.TrimSpace(os.Getenv(UnitPrefix + infix + "_BLOCKING"))); err == nil && !nb {
+			unit.Blocking = new(bool)
+			*unit.Blocking = false
+		}
+	}
+
 	ok = true
 
 	return
@@ -242,6 +250,13 @@ func LoadEnv() (unit Unit, ok bool, err error) {
 		Command:   cmds,
 		Dir:       strings.TrimSpace(os.Getenv("MINIT_MAIN_DIR")),
 		Charset:   strings.TrimSpace(os.Getenv("MINIT_MAIN_CHARSET")),
+	}
+
+	if unit.Kind == KindOnce {
+		if nb, err := strconv.ParseBool(strings.TrimSpace(os.Getenv("MINIT_MAIN_BLOCKING"))); err == nil && !nb {
+			unit.Blocking = new(bool)
+			*unit.Blocking = false
+		}
 	}
 
 	ok = true
