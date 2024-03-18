@@ -128,6 +128,10 @@ command:
   - once
 ```
 
+By default `once` units will block other `minit` units until finished.
+
+Set `blocking: false` to run `once` units in background.
+
 ### 3.3 Type: `daemon`
 
 `daemon` units execute after `render` and `once`. It runs long-running command.

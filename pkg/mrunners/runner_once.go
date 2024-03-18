@@ -26,6 +26,16 @@ func (r *runnerOnce) Do(ctx context.Context) {
 	r.Print("controller started")
 	defer r.Print("controller exited")
 
+	if r.Unit.Blocking != nil && !*r.Unit.Blocking {
+		go func() {
+			if err := r.Exec.Execute(r.Unit.ExecuteOptions(r.Logger)); err != nil {
+				r.Error("failed executing (non-blocking): " + err.Error())
+				return
+			}
+		}()
+		return
+	}
+
 	if err := r.Exec.Execute(r.Unit.ExecuteOptions(r.Logger)); err != nil {
 		r.Error("failed executing: " + err.Error())
 		return

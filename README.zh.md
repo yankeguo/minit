@@ -79,6 +79,10 @@ ENTRYPOINT ["/minit"]
     - once
   ```
 
+  默认情况下，`once` 类型的配置单元会阻塞其他 `minit` 单元，直到完成。
+
+  设置 `blocking: false` 可以让 `once` 类型的配置单元在后台运行
+
 - `daemon`
 
   `daemon` 类型的配置单元，最后启动（优先级 L3），用于执行常驻进程

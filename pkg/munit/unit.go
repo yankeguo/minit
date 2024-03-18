@@ -47,6 +47,9 @@ type Unit struct {
 	// for 'cron' only
 	Cron      string `yaml:"cron"` // cron syntax
 	Immediate bool   `yaml:"immediate"`
+
+	// for 'once' only
+	Blocking *bool `yaml:"blocking"` // set to false to run once task in background
 }
 
 func (u Unit) RequireCommand() error {
