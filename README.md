@@ -128,9 +128,16 @@ command:
   - once
 ```
 
-By default `once` units will block other `minit` units until finished.
+**Non-blocking**
+
+By default, `once` units will block other `minit` units until finished.
 
 Set `blocking: false` to run `once` units in background.
+
+**Critical**
+
+If `critical` field is set to `true`, `minit` will stop if this unit failed.
+
 
 ### 3.3 Type: `daemon`
 
@@ -309,6 +316,31 @@ Example:
 
 ```text
 MINIT_DISABLE=once-demo,@demo
+```
+
+## 4.7 Critical Units
+
+If `critical` field is set to `true`, `minit` will stop if this unit failed.
+
+By specifying the `success_codes` field for `once`, `daemon` and `cron` units, `minit` will interpret exit codes within the provided list as indicative of success.
+
+Example:
+
+```yaml
+kind: once
+name: once-demo-critical
+critical: true
+command:
+  - false
+---
+kind: once
+name: once-demo-critical
+critical: true
+success_codes:
+  - 0
+  - 1
+command:
+  - false
 ```
 
 ## 5. Extra Features

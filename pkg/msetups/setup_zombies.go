@@ -5,7 +5,6 @@ package msetups
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/signal"
 	"strconv"
@@ -105,7 +104,7 @@ func findZombieProcesses() (pids []int, err error) {
 
 func checkProcessIsZombie(pid int) (zombie bool, err error) {
 	var buf []byte
-	if buf, err = ioutil.ReadFile(fmt.Sprintf("/proc/%d/stat", pid)); err != nil {
+	if buf, err = os.ReadFile(fmt.Sprintf("/proc/%d/stat", pid)); err != nil {
 		return
 	}
 	zombie = checkProcStatIsZombie(buf)

@@ -28,17 +28,19 @@ var (
 )
 
 type Unit struct {
-	Kind  string `yaml:"kind"`  // kind of unit
-	Name  string `yaml:"name"`  // name of unit
-	Group string `yaml:"group"` // group of unit
-	Count int    `yaml:"count"` // replicas of unit
+	Kind     string `yaml:"kind"`     // kind of unit
+	Name     string `yaml:"name"`     // name of unit
+	Group    string `yaml:"group"`    // group of unit
+	Count    int    `yaml:"count"`    // replicas of unit
+	Critical bool   `yaml:"critical"` // if true, will halt the minit if unit failed
 
 	// execution options
-	Dir     string            `yaml:"dir"`
-	Shell   string            `yaml:"shell"`
-	Env     map[string]string `yaml:"env"`
-	Command []string          `yaml:"command"`
-	Charset string            `yaml:"charset"`
+	Dir          string            `yaml:"dir"`
+	Shell        string            `yaml:"shell"`
+	Env          map[string]string `yaml:"env"`
+	Command      []string          `yaml:"command"`
+	Charset      string            `yaml:"charset"`
+	SuccessCodes []int             `yaml:"success_codes"` // exit codes that should be treated as success, default is [0]
 
 	// for 'render' only
 	Raw   bool     `yaml:"raw"`   // don't trim white spaces for 'render'
