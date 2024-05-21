@@ -30,11 +30,14 @@ const (
 	dirNone = "none"
 )
 
-func mkdirUnlessNone(dir string) error {
-	if dir == dirNone {
-		return nil
+func mkdirUnlessNone(dir *string) {
+	if *dir == dirNone {
+		return
 	}
-	return os.MkdirAll(dir, 0755)
+	if err := os.MkdirAll(*dir, 0755); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to create dir %s: %s\n", *dir, err.Error())
+		*dir = dirNone
+	}
 }
 
 func exit(err *error) {
@@ -83,8 +86,8 @@ func main() {
 		}()
 	}
 
-	rg.Must0(mkdirUnlessNone(optUnitDir))
-	rg.Must0(mkdirUnlessNone(optLogDir))
+	mkdirUnlessNone(&optUnitDir)
+	mkdirUnlessNone(&optLogDir)
 
 	createLogger := func(name string, pfx string) (mlog.ProcLogger, error) {
 		var rfo *mlog.RotatingFileOptions
