@@ -57,7 +57,10 @@ func (r *runnerCron) Do(ctx context.Context) (err error) {
 		if err := r.Exec.Execute(r.Unit.ExecuteOptions(r.Logger)); err != nil {
 			r.Error("failed executing: " + err.Error())
 			if r.Unit.Critical {
-				chErr <- err
+				select {
+				case chErr <- err:
+				default:
+				}
 			} else {
 				err = nil
 			}
