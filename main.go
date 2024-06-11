@@ -166,7 +166,9 @@ func main() {
 
 	// execute short runners
 	for _, runner := range runnersS {
-		runner.Action.Do(context.Background())
+		if err = runner.Action.Do(context.Background()); err != nil {
+			return
+		}
 	}
 
 	// quick exit

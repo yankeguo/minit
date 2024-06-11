@@ -70,9 +70,10 @@ func (r *runnerRender) Do(ctx context.Context) (err error) {
 
 			if r.Unit.Critical {
 				return
+			} else {
+				err = nil
 			}
 
-			err = nil
 			continue
 		}
 
@@ -82,9 +83,10 @@ func (r *runnerRender) Do(ctx context.Context) (err error) {
 
 				if r.Unit.Critical {
 					return
+				} else {
+					err = nil
 				}
 
-				err = nil
 				continue
 			}
 

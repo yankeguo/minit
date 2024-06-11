@@ -37,29 +37,47 @@ func (r *runnerCron) Do(ctx context.Context) (err error) {
 	if r.Unit.Immediate {
 		if err = r.Exec.Execute(r.Unit.ExecuteOptions(r.Logger)); err != nil {
 			r.Error("failed executing: " + err.Error())
-
 			if r.Unit.Critical {
 				return
+			} else {
+				err = nil
 			}
-
-			err = nil
 		}
 	}
 
 	cr := cron.New(cron.WithLogger(cron.PrintfLogger(r.Logger)))
 
+	var chErr chan error
+	if r.Unit.Critical {
+		chErr = make(chan error, 1)
+	}
+
 	if _, err = cr.AddFunc(r.Unit.Cron, func() {
 		r.Print("triggered")
 		if err := r.Exec.Execute(r.Unit.ExecuteOptions(r.Logger)); err != nil {
 			r.Error("failed executing: " + err.Error())
+			if r.Unit.Critical {
+				chErr <- err
+			} else {
+				err = nil
+			}
 		}
 	}); err != nil {
+		// should fail since we have checked in init
 		return
 	}
 
 	cr.Start()
 
-	<-ctx.Done()
+	if r.Unit.Critical {
+		select {
+		case <-ctx.Done():
+		case err = <-chErr:
+		}
+	} else {
+		<-ctx.Done()
+	}
+
 	<-cr.Stop().Done()
 
 	return

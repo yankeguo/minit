@@ -39,6 +39,8 @@ forLoop:
 
 			if r.Unit.Critical {
 				return
+			} else {
+				err = nil
 			}
 		}
 

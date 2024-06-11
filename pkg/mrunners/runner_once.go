@@ -38,7 +38,11 @@ func (r *runnerOnce) Do(ctx context.Context) (err error) {
 
 	if err = r.Exec.Execute(r.Unit.ExecuteOptions(r.Logger)); err != nil {
 		r.Error("failed executing: " + err.Error())
-		return
+		if r.Unit.Critical {
+			return
+		} else {
+			err = nil
+		}
 	}
 
 	return
