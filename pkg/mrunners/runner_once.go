@@ -22,7 +22,7 @@ type runnerOnce struct {
 	RunnerOptions
 }
 
-func (r *runnerOnce) Do(ctx context.Context) {
+func (r *runnerOnce) Do(ctx context.Context) (err error) {
 	r.Print("controller started")
 	defer r.Print("controller exited")
 
@@ -36,8 +36,10 @@ func (r *runnerOnce) Do(ctx context.Context) {
 		return
 	}
 
-	if err := r.Exec.Execute(r.Unit.ExecuteOptions(r.Logger)); err != nil {
+	if err = r.Exec.Execute(r.Unit.ExecuteOptions(r.Logger)); err != nil {
 		r.Error("failed executing: " + err.Error())
 		return
 	}
+
+	return
 }

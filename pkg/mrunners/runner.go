@@ -11,7 +11,7 @@ import (
 )
 
 type RunnerAction interface {
-	Do(ctx context.Context)
+	Do(ctx context.Context) (err error)
 }
 
 type Runner struct {

@@ -30,30 +30,37 @@ type runnerCron struct {
 	RunnerOptions
 }
 
-func (r *runnerCron) Do(ctx context.Context) {
+func (r *runnerCron) Do(ctx context.Context) (err error) {
 	r.Print("controller started")
 	defer r.Print("controller exited")
 
 	if r.Unit.Immediate {
-		if err := r.Exec.Execute(r.Unit.ExecuteOptions(r.Logger)); err != nil {
+		if err = r.Exec.Execute(r.Unit.ExecuteOptions(r.Logger)); err != nil {
 			r.Error("failed executing: " + err.Error())
+
+			if r.Unit.Critical {
+				return
+			}
+
+			err = nil
 		}
 	}
 
 	cr := cron.New(cron.WithLogger(cron.PrintfLogger(r.Logger)))
-	_, err := cr.AddFunc(r.Unit.Cron, func() {
+
+	if _, err = cr.AddFunc(r.Unit.Cron, func() {
 		r.Print("triggered")
 		if err := r.Exec.Execute(r.Unit.ExecuteOptions(r.Logger)); err != nil {
 			r.Error("failed executing: " + err.Error())
 		}
-	})
-
-	if err != nil {
-		panic(err)
+	}); err != nil {
+		return
 	}
 
 	cr.Start()
 
 	<-ctx.Done()
 	<-cr.Stop().Done()
+
+	return
 }
