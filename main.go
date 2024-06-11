@@ -166,7 +166,9 @@ func main() {
 
 	// execute short runners
 	for _, runner := range runnersS {
-		runner.Action.Do(context.Background())
+		if err = runner.Action.Do(context.Background()); err != nil {
+			return
+		}
 	}
 
 	// quick exit
@@ -178,11 +180,17 @@ func main() {
 	// run long runners
 	ctx, cancel := context.WithCancel(context.Background())
 	wg := &sync.WaitGroup{}
+	chErr := make(chan error, 1)
 
 	for _, runner := range runnersL {
 		wg.Add(1)
 		go func(runner mrunners.Runner) {
-			runner.Action.Do(ctx)
+			if err := runner.Action.Do(ctx); err != nil {
+				select {
+				case chErr <- err:
+				default:
+				}
+			}
 			wg.Done()
 		}(runner)
 	}
@@ -192,8 +200,19 @@ func main() {
 	// wait for signals
 	chSig := make(chan os.Signal, 1)
 	signal.Notify(chSig, syscall.SIGINT, syscall.SIGTERM)
-	sig := <-chSig
-	log.Printf("signal caught: %s", sig.String())
+
+	var sig os.Signal
+
+	select {
+	case sig = <-chSig:
+		log.Printf("signal caught: %s", sig.String())
+	case err = <-chErr:
+		log.Printf("critical error caught: %s", err.Error())
+	}
+
+	if sig == nil {
+		sig = syscall.SIGTERM
+	}
 
 	// shutdown context
 	cancel()

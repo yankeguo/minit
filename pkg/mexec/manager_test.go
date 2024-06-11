@@ -33,8 +33,7 @@ func TestNewManager(t *testing.T) {
 		Command: []string{
 			"echo", "$AAA",
 		},
-		Logger:          logger,
-		IgnoreExecError: true,
+		Logger: logger,
 	})
 	require.NoError(t, err)
 
@@ -56,8 +55,7 @@ func TestNewManager(t *testing.T) {
 		Command: []string{
 			"sleep", "$AAA",
 		},
-		Logger:          logger,
-		IgnoreExecError: true,
+		Logger: logger,
 	})
 	require.NoError(t, err)
 

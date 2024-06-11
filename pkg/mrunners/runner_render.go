@@ -51,31 +51,50 @@ func (r *runnerRender) doFile(ctx context.Context, name string, env map[string]s
 	return
 }
 
-func (r *runnerRender) Do(ctx context.Context) {
+func (r *runnerRender) Do(ctx context.Context) (err error) {
 	r.Print("controller started")
 	defer r.Print("controller exited")
 
-	env, err := menv.Construct(r.Unit.Env)
+	var env map[string]string
 
-	if err != nil {
+	if env, err = menv.Construct(r.Unit.Env); err != nil {
 		r.Error("failed constructing environments variables: " + err.Error())
 		return
 	}
 
 	for _, filePattern := range r.Unit.Files {
 		var names []string
+
 		if names, err = filepath.Glob(filePattern); err != nil {
 			r.Error(fmt.Sprintf("failed globbing: %s: %s", filePattern, err.Error()))
+
+			if r.Unit.Critical {
+				return
+			} else {
+				err = nil
+			}
+
 			continue
 		}
+
 		for _, name := range names {
-			if err = r.doFile(ctx, name, env); err == nil {
-				r.Print("done rendering: " + name)
-			} else {
+			if err = r.doFile(ctx, name, env); err != nil {
 				r.Error("failed rendering: " + name + ": " + err.Error())
+
+				if r.Unit.Critical {
+					return
+				} else {
+					err = nil
+				}
+
+				continue
 			}
+
+			r.Print("done rendering: " + name)
 		}
 	}
+
+	return
 }
 
 func sanitizeLines(s []byte) []byte {

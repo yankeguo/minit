@@ -24,7 +24,7 @@ type runnerDaemon struct {
 	RunnerOptions
 }
 
-func (r *runnerDaemon) Do(ctx context.Context) {
+func (r *runnerDaemon) Do(ctx context.Context) (err error) {
 	r.Print("controller started")
 	defer r.Print("controller exited")
 
@@ -34,9 +34,14 @@ forLoop:
 			break forLoop
 		}
 
-		var err error
 		if err = r.Exec.Execute(r.Unit.ExecuteOptions(r.Logger)); err != nil {
 			r.Error("failed executing:" + err.Error())
+
+			if r.Unit.Critical {
+				return
+			} else {
+				err = nil
+			}
 		}
 
 		if ctx.Err() != nil {
@@ -53,4 +58,5 @@ forLoop:
 		}
 	}
 
+	return
 }

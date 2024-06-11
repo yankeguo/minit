@@ -2,6 +2,7 @@ package mexec
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -19,14 +20,14 @@ import (
 type ExecuteOptions struct {
 	Name string
 
-	Dir     string
-	Shell   string
-	Env     map[string]string
-	Command []string
-	Charset string
+	Dir          string
+	Shell        string
+	Env          map[string]string
+	Command      []string
+	Charset      string
+	SuccessCodes []int
 
-	Logger          mlog.ProcLogger
-	IgnoreExecError bool
+	Logger mlog.ProcLogger
 }
 
 type Manager interface {
@@ -35,15 +36,15 @@ type Manager interface {
 }
 
 type manager struct {
-	childPIDs    map[int]struct{}
-	childPIDLock sync.Locker
-	charsets     map[string]encoding.Encoding
+	managedPIDs    map[int]struct{}
+	managedPIDLock sync.Locker
+	charsets       map[string]encoding.Encoding
 }
 
 func NewManager() Manager {
 	return &manager{
-		childPIDs:    map[int]struct{}{},
-		childPIDLock: &sync.Mutex{},
+		managedPIDs:    map[int]struct{}{},
+		managedPIDLock: &sync.Mutex{},
 		charsets: map[string]encoding.Encoding{
 			"gb18030": simplifiedchinese.GB18030,
 			"gbk":     simplifiedchinese.GBK,
@@ -51,26 +52,29 @@ func NewManager() Manager {
 	}
 }
 
-func (m *manager) addChildPID(fn func() (pid int, err error)) error {
-	m.childPIDLock.Lock()
-	defer m.childPIDLock.Unlock()
-	pid, err := fn()
-	if err == nil {
-		m.childPIDs[pid] = struct{}{}
-	}
-	return err
-}
+func (m *manager) StartCommand(cmd *exec.Cmd) (done func(), err error) {
+	m.managedPIDLock.Lock()
+	defer m.managedPIDLock.Unlock()
 
-func (m *manager) delChildPID(pid int) {
-	m.childPIDLock.Lock()
-	defer m.childPIDLock.Unlock()
-	delete(m.childPIDs, pid)
+	if err = cmd.Start(); err != nil {
+		return
+	}
+
+	pid := cmd.Process.Pid
+	m.managedPIDs[pid] = struct{}{}
+	done = func() {
+		m.managedPIDLock.Lock()
+		defer m.managedPIDLock.Unlock()
+		delete(m.managedPIDs, pid)
+	}
+	return
 }
 
 func (m *manager) Signal(sig os.Signal) {
-	m.childPIDLock.Lock()
-	defer m.childPIDLock.Unlock()
-	for pid := range m.childPIDs {
+	m.managedPIDLock.Lock()
+	defer m.managedPIDLock.Unlock()
+
+	for pid := range m.managedPIDs {
 		if process, _ := os.FindProcess(pid); process != nil {
 			_ = process.Signal(sig)
 		}
@@ -148,15 +152,11 @@ func (m *manager) Execute(opts ExecuteOptions) (err error) {
 	}
 
 	// start process in the same lock with signal children
-	if err = m.addChildPID(func() (pid int, err error) {
-		if err = cmd.Start(); err != nil {
-			return
-		}
-		pid = cmd.Process.Pid
-		return
-	}); err != nil {
+	var done func()
+	if done, err = m.StartCommand(cmd); err != nil {
 		return
 	}
+	defer done()
 
 	opts.Logger.Print("minit: " + opts.Name + ": process started")
 
@@ -165,17 +165,40 @@ func (m *manager) Execute(opts ExecuteOptions) (err error) {
 	go opts.Logger.Err().ReadFrom(errPipe)
 
 	// wait for process
-	if err = cmd.Wait(); err != nil {
-		opts.Logger.Error("minit: " + opts.Name + ": process exited with error: " + err.Error())
+	err = cmd.Wait()
 
-		if opts.IgnoreExecError {
-			err = nil
+	var code int
+
+	if err != nil {
+		if ee, ok := err.(*exec.ExitError); ok {
+			code = ee.ExitCode()
+		} else {
+			opts.Logger.Error("minit: " + opts.Name + ": process exited with error: " + err.Error())
+			return
 		}
-	} else {
-		opts.Logger.Print("minit: " + opts.Name + ": process exited")
 	}
 
-	m.delChildPID(cmd.Process.Pid)
+	if checkSuccessCode(opts.SuccessCodes, code) {
+		err = nil
+		opts.Logger.Print("minit: " + opts.Name + ": process exited successfully")
+		return
+	}
+
+	err = fmt.Errorf("exit code: %d is not in success_codes", code)
+
+	opts.Logger.Error("minit: " + opts.Name + ": process exited with error: " + err.Error())
 
 	return
+}
+
+func checkSuccessCode(successCodes []int, code int) bool {
+	if len(successCodes) == 0 {
+		return code == 0
+	}
+	for _, c := range successCodes {
+		if c == code {
+			return true
+		}
+	}
+	return false
 }
