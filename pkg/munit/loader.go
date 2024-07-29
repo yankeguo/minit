@@ -78,7 +78,7 @@ func (ld *Loader) Load(opts LoadOptions) (output []Unit, skipped []Unit, err err
 				unit Unit
 				ok   bool
 			)
-			if unit, ok, err = LoadFromEnvWithInfix(infix); err != nil {
+			if unit, ok, err = LoadEnvWithInfix(infix); err != nil {
 				return
 			}
 			if ok {

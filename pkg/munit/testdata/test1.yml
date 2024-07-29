@@ -1,6 +1,7 @@
 name: task-1
 kind: once
 group: group-echo
+block: false
 command:
   - echo
   - once
@@ -11,6 +12,10 @@ kind: daemon
 group: group-echo
 count: 3
 shell: /bin/bash
+critical: true
+charset: gbk
 command:
   - sleep 1 && echo hello world
+success_codes: [0, 1, 2]
 ---
+

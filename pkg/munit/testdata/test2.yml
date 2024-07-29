@@ -8,11 +8,13 @@ command:
 name: task-4
 kind: cron
 cron: "@every ${DEBUG_EVERY}"
+immediate: true
 command:
   - echo
   - cron
 ---
 name: task-5
 kind: render
+raw: true
 files:
   - testdata/conf/*.conf
