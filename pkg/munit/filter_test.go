@@ -3,16 +3,19 @@ package munit
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewFilterMap(t *testing.T) {
 	fm := NewFilterMap("")
-	require.Nil(t, fm)
+	require.NotNil(t, fm)
+	require.True(t, fm.Blank())
 
 	fm = NewFilterMap(",,  ,")
-	require.Nil(t, fm)
+	require.NotNil(t, fm)
+	require.True(t, fm.Blank())
 
 	fm = NewFilterMap("unit-a,&daemon")
 	require.True(t, fm.Match(Unit{
