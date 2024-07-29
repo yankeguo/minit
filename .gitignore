@@ -18,7 +18,7 @@
 .idea/
 
 # Binary
-/minit
+/minit*
 
 # Log
 *.log
