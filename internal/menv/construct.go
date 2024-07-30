@@ -11,20 +11,12 @@ const (
 )
 
 // Construct create the env map with current system environ, extra and rendering MINIT_ENV_ prefixed keys
-func Construct(extra map[string]string) (envs map[string]string, err error) {
+func Construct(sys map[string]string, extra map[string]string) (envs map[string]string, err error) {
 	envs = make(map[string]string)
 
 	// system env
-	for _, item := range osEnviron() {
-		splits := strings.SplitN(item, "=", 2)
-		var key, val string
-		if len(splits) > 0 {
-			key = splits[0]
-			if len(splits) > 1 {
-				val = splits[1]
-			}
-			envs[key] = val
-		}
+	for key, val := range sys {
+		envs[key] = val
 	}
 
 	// merge extra env

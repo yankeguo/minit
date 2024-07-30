@@ -14,6 +14,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/yankeguo/minit/internal/menv"
 	"github.com/yankeguo/minit/internal/mexec"
 	"github.com/yankeguo/minit/internal/mlog"
 	"github.com/yankeguo/minit/internal/mrunners"
@@ -113,12 +114,11 @@ func main() {
 	rg.Must0(msetups.Setup(log))
 
 	// load units
-	loader := munit.NewLoader()
 	units, skips := rg.Must2(
-		loader.Load(
+		munit.Load(
 			munit.LoadOptions{
 				Args: os.Args[1:],
-				Env:  true,
+				Env:  menv.Environ(),
 				Dir:  optUnitDir,
 			},
 		),

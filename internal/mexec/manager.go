@@ -99,7 +99,7 @@ func (m *manager) Execute(opts ExecuteOptions) (err error) {
 
 	// build env
 	var env map[string]string
-	if env, err = menv.Construct(opts.Env); err != nil {
+	if env, err = menv.Construct(menv.Environ(), opts.Env); err != nil {
 		err = errors.New("failed constructing environment variables: " + err.Error())
 		return
 	}

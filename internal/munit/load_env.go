@@ -13,16 +13,10 @@ const (
 )
 
 // DetectEnvInfixes detects infixes from environment variables
-func DetectEnvInfixes() (infixes []string) {
+func DetectEnvInfixes(env map[string]string) (infixes []string) {
 	_infixes := map[string]struct{}{}
 
-	for _, item := range osEnviron() {
-		splits := strings.SplitN(item, "=", 2)
-		if len(splits) != 2 {
-			continue
-		}
-
-		key := splits[0]
+	for key := range env {
 		if !strings.HasPrefix(key, EnvPrefixUnit) {
 			continue
 		}
@@ -40,7 +34,7 @@ func DetectEnvInfixes() (infixes []string) {
 			if key == "" {
 				continue
 			}
-			if osGetenv(EnvPrefixUnit+key+"_KIND") == KindRender {
+			if env[EnvPrefixUnit+key+"_KIND"] == KindRender {
 				_infixes[key] = struct{}{}
 			}
 		}
@@ -55,9 +49,9 @@ func DetectEnvInfixes() (infixes []string) {
 
 // LoadEnvWithInfix loads unit from environment variables with infix
 // e.g. MINIT_UNIT_HELLO_KIND, MINIT_UNIT_HELLO_NAME, MINIT_UNIT_HELLO_COMMAND
-func LoadEnvWithInfix(infix string) (unit Unit, ok bool, err error) {
+func LoadEnvWithInfix(env map[string]string, infix string) (unit Unit, ok bool, err error) {
 	// kind
-	unit.Kind = osGetenv(EnvPrefixUnit + infix + "_KIND")
+	unit.Kind = env[EnvPrefixUnit+infix+"_KIND"]
 
 	if unit.Kind == "" {
 		unit.Kind = KindDaemon
@@ -71,17 +65,17 @@ func LoadEnvWithInfix(infix string) (unit Unit, ok bool, err error) {
 	}
 
 	// name, group, count
-	unit.Name = osGetenv(EnvPrefixUnit + infix + "_NAME")
+	unit.Name = env[EnvPrefixUnit+infix+"_NAME"]
 	if unit.Name == "" {
 		unit.Name = "env-" + strings.ToLower(infix)
 	}
-	unit.Group = osGetenv(EnvPrefixUnit + infix + "_GROUP")
-	unit.Count, _ = strconv.Atoi(osGetenv(EnvPrefixUnit + infix + "_COUNT"))
+	unit.Group = env[EnvPrefixUnit+infix+"_GROUP"]
+	unit.Count, _ = strconv.Atoi(env[EnvPrefixUnit+infix+"_COUNT"])
 
 	// command, dir, shell, charset
 	switch unit.Kind {
 	case KindDaemon, KindOnce, KindCron:
-		cmd := osGetenv(EnvPrefixUnit + infix + "_COMMAND")
+		cmd := env[EnvPrefixUnit+infix+"_COMMAND"]
 
 		if unit.Command, err = shellquote.Split(cmd); err != nil {
 			return
@@ -92,11 +86,11 @@ func LoadEnvWithInfix(infix string) (unit Unit, ok bool, err error) {
 			return
 		}
 
-		unit.Dir = osGetenv(EnvPrefixUnit + infix + "_DIR")
-		unit.Shell = osGetenv(EnvPrefixUnit + infix + "_SHELL")
-		unit.Charset = osGetenv(EnvPrefixUnit + infix + "_CHARSET")
+		unit.Dir = env[EnvPrefixUnit+infix+"_DIR"]
+		unit.Shell = env[EnvPrefixUnit+infix+"_SHELL"]
+		unit.Charset = env[EnvPrefixUnit+infix+"_CHARSET"]
 
-		for _, item := range strings.Split(osGetenv(EnvPrefixUnit+infix+"_ENV"), ";") {
+		for _, item := range strings.Split(env[EnvPrefixUnit+infix+"_ENV"], ";") {
 			item = strings.TrimSpace(item)
 			splits := strings.SplitN(item, "=", 2)
 			if len(splits) == 2 {
@@ -110,21 +104,21 @@ func LoadEnvWithInfix(infix string) (unit Unit, ok bool, err error) {
 
 	// cron, immediate
 	if unit.Kind == KindCron {
-		unit.Cron = osGetenv(EnvPrefixUnit + infix + "_CRON")
+		unit.Cron = env[EnvPrefixUnit+infix+"_CRON"]
 
 		if unit.Cron == "" {
 			err = errors.New("missing environment variable $" + EnvPrefixUnit + infix + "_CRON while $" + EnvPrefixUnit + infix + "_KIND is 'cron'")
 			return
 		}
 
-		unit.Immediate, _ = strconv.ParseBool(osGetenv(EnvPrefixUnit + infix + "_IMMEDIATE"))
+		unit.Immediate, _ = strconv.ParseBool(env[EnvPrefixUnit+infix+"_IMMEDIATE"])
 	}
 
 	// raw, files
 	if unit.Kind == KindRender {
-		unit.Raw, _ = strconv.ParseBool(osGetenv(EnvPrefixUnit + infix + "_RAW"))
+		unit.Raw, _ = strconv.ParseBool(env[EnvPrefixUnit+infix+"_RAW"])
 
-		for _, item := range strings.Split(osGetenv(EnvPrefixUnit+infix+"_FILES"), ";") {
+		for _, item := range strings.Split(env[EnvPrefixUnit+infix+"_FILES"], ";") {
 			item = strings.TrimSpace(item)
 			if item != "" {
 				unit.Files = append(unit.Files, item)
@@ -139,17 +133,17 @@ func LoadEnvWithInfix(infix string) (unit Unit, ok bool, err error) {
 
 	// blocking
 	if unit.Kind == KindOnce {
-		if nb, err := strconv.ParseBool(strings.TrimSpace(osGetenv(EnvPrefixUnit + infix + "_BLOCKING"))); err == nil && !nb {
+		if nb, err := strconv.ParseBool(strings.TrimSpace(env[EnvPrefixUnit+infix+"_BLOCKING"])); err == nil && !nb {
 			unit.Blocking = new(bool)
 			*unit.Blocking = false
 		}
 	}
 
 	// critical
-	unit.Critical, _ = strconv.ParseBool(osGetenv(EnvPrefixUnit + infix + "_CRITICAL"))
+	unit.Critical, _ = strconv.ParseBool(env[EnvPrefixUnit+infix+"_CRITICAL"])
 
 	// success codes
-	for _, item := range strings.Split(osGetenv(EnvPrefixUnit+infix+"_SUCCESS_CODES"), ",") {
+	for _, item := range strings.Split(env[EnvPrefixUnit+infix+"_SUCCESS_CODES"], ",") {
 		item = strings.TrimSpace(item)
 		if item == "" {
 			continue
@@ -165,13 +159,13 @@ func LoadEnvWithInfix(infix string) (unit Unit, ok bool, err error) {
 }
 
 // LoadEnv loads legacy main unit from environment variables
-func LoadEnv() (unit Unit, ok bool, err error) {
-	cmd := strings.TrimSpace(osGetenv("MINIT_MAIN"))
+func LoadEnv(env map[string]string) (unit Unit, ok bool, err error) {
+	cmd := strings.TrimSpace(env["MINIT_MAIN"])
 	if cmd == "" {
 		return
 	}
 
-	name := strings.TrimSpace(osGetenv("MINIT_MAIN_NAME"))
+	name := strings.TrimSpace(env["MINIT_MAIN_NAME"])
 	if name == "" {
 		name = "env-main"
 	}
@@ -181,21 +175,21 @@ func LoadEnv() (unit Unit, ok bool, err error) {
 		immediate bool
 	)
 
-	kind := strings.TrimSpace(osGetenv("MINIT_MAIN_KIND"))
+	kind := strings.TrimSpace(env["MINIT_MAIN_KIND"])
 
 	switch kind {
 	case KindDaemon, KindOnce:
 	case KindCron:
-		cron = strings.TrimSpace(osGetenv("MINIT_MAIN_CRON"))
+		cron = strings.TrimSpace(env["MINIT_MAIN_CRON"])
 
 		if cron == "" {
 			err = errors.New("missing environment variable $MINIT_MAIN_CRON while $MINIT_MAIN_KIND is 'cron'")
 			return
 		}
 
-		immediate, _ = strconv.ParseBool(osGetenv("MINIT_MAIN_IMMEDIATE"))
+		immediate, _ = strconv.ParseBool(env["MINIT_MAIN_IMMEDIATE"])
 	case "":
-		if once, _ := strconv.ParseBool(strings.TrimSpace(osGetenv("MINIT_MAIN_ONCE"))); once {
+		if once, _ := strconv.ParseBool(strings.TrimSpace(env["MINIT_MAIN_ONCE"])); once {
 			kind = KindOnce
 		} else {
 			kind = KindDaemon
@@ -212,17 +206,17 @@ func LoadEnv() (unit Unit, ok bool, err error) {
 
 	unit = Unit{
 		Name:      name,
-		Group:     strings.TrimSpace(osGetenv("MINIT_MAIN_GROUP")),
+		Group:     strings.TrimSpace(env["MINIT_MAIN_GROUP"]),
 		Kind:      kind,
 		Cron:      cron,
 		Immediate: immediate,
 		Command:   cmds,
-		Dir:       strings.TrimSpace(osGetenv("MINIT_MAIN_DIR")),
-		Charset:   strings.TrimSpace(osGetenv("MINIT_MAIN_CHARSET")),
+		Dir:       strings.TrimSpace(env["MINIT_MAIN_DIR"]),
+		Charset:   strings.TrimSpace(env["MINIT_MAIN_CHARSET"]),
 	}
 
 	if unit.Kind == KindOnce {
-		if nb, err := strconv.ParseBool(strings.TrimSpace(osGetenv("MINIT_MAIN_BLOCKING"))); err == nil && !nb {
+		if nb, err := strconv.ParseBool(strings.TrimSpace(env["MINIT_MAIN_BLOCKING"])); err == nil && !nb {
 			unit.Blocking = new(bool)
 			*unit.Blocking = false
 		}

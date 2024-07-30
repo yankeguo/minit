@@ -90,7 +90,7 @@ func (r *actionRender) Do(ctx context.Context) (err error) {
 
 	var env map[string]string
 
-	if env, err = menv.Construct(r.Unit.Env); err != nil {
+	if env, err = menv.Construct(menv.Environ(), r.Unit.Env); err != nil {
 		err = r.PanicOnCritical("failed constructing environments variables", err)
 		return
 	}

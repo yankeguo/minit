@@ -2,9 +2,9 @@ package munit
 
 import (
 	"errors"
+	"os"
 	"regexp"
 	"strconv"
-	"strings"
 )
 
 var (
@@ -18,26 +18,13 @@ const (
 	PrefixKind  = "&"
 )
 
-type Loader struct {
-	filter *Filter
-}
-
-func NewLoader() (ld *Loader) {
-	return &Loader{
-		filter: NewFilter(
-			strings.TrimSpace(osGetenv("MINIT_ENABLE")),
-			strings.TrimSpace(osGetenv("MINIT_DISABLE")),
-		),
-	}
-}
-
 type LoadOptions struct {
 	Args []string
-	Env  bool
+	Env  map[string]string
 	Dir  string
 }
 
-func (ld *Loader) Load(opts LoadOptions) (output []Unit, skipped []Unit, err error) {
+func Load(opts LoadOptions) (output []Unit, skipped []Unit, err error) {
 	var units []Unit
 
 	// load units
@@ -48,6 +35,7 @@ func (ld *Loader) Load(opts LoadOptions) (output []Unit, skipped []Unit, err err
 		}
 		units = append(units, dUnits...)
 	}
+
 	if len(opts.Args) > 0 {
 		var unit Unit
 		var ok bool
@@ -58,26 +46,35 @@ func (ld *Loader) Load(opts LoadOptions) (output []Unit, skipped []Unit, err err
 			units = append(units, unit)
 		}
 	}
-	if opts.Env {
+
+	filter := NewFilter("", "")
+
+	if opts.Env != nil {
+
+		filter = NewFilter(
+			opts.Env["MINIT_ENABLE"],
+			opts.Env["MINIT_DISABLE"],
+		)
+
 		{
 			// legacy minit main
 			var (
 				unit Unit
 				ok   bool
 			)
-			if unit, ok, err = LoadEnv(); err != nil {
+			if unit, ok, err = LoadEnv(opts.Env); err != nil {
 				return
 			} else if ok {
 				units = append(units, unit)
 			}
 		}
 
-		for _, infix := range DetectEnvInfixes() {
+		for _, infix := range DetectEnvInfixes(opts.Env) {
 			var (
 				unit Unit
 				ok   bool
 			)
-			if unit, ok, err = LoadEnvWithInfix(infix); err != nil {
+			if unit, ok, err = LoadEnvWithInfix(opts.Env, infix); err != nil {
 				return
 			}
 			if ok {
@@ -120,14 +117,16 @@ func (ld *Loader) Load(opts LoadOptions) (output []Unit, skipped []Unit, err err
 		}
 
 		// skip if needed
-		if !ld.filter.Match(unit) {
+		if !filter.Match(unit) {
 			skipped = append(skipped, unit)
 			continue
 		}
 
 		// eval cron
-		if unit.Cron != "" {
-			unit.Cron = osExpandEnv(unit.Cron)
+		if unit.Cron != "" && opts.Env != nil {
+			unit.Cron = os.Expand(unit.Cron, func(s string) string {
+				return opts.Env[s]
+			})
 		}
 
 		// replicas

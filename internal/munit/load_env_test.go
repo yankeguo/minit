@@ -1,55 +1,29 @@
 package munit
 
 import (
-	"os"
 	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
-func replaceTestEnv(m map[string]string) {
-	osGetenv = func(key string) string {
-		return m[key]
-	}
-	osEnviron = func() []string {
-		var env []string
-		for k, v := range m {
-			env = append(env, k+"="+v)
-		}
-		return env
-	}
-	osExpandEnv = func(s string) string {
-		return os.Expand(s, func(key string) string {
-			return m[key]
-		})
-	}
-}
-
-func restoreTestEnv() {
-	osGetenv = os.Getenv
-	osEnviron = os.Environ
-	osExpandEnv = os.ExpandEnv
-}
-
 func TestDetectEnvInfixes(t *testing.T) {
-	replaceTestEnv(map[string]string{
+	env := map[string]string{
 		"MINIT_UNIT_MAIN_COMMAND": "hello",
 		"MINIT_UNIT_COMMAND":      "hello",
 		"MINIT_UNIT_A_FILES":      "hello",
 		"MINIT_UNIT_B_FILES":      "hello",
 		"MINIT_UNIT_B_KIND":       "render",
-	})
-	defer restoreTestEnv()
+	}
 
-	infixes := DetectEnvInfixes()
+	infixes := DetectEnvInfixes(env)
 	sort.StringSlice(infixes).Sort()
 
 	require.Equal(t, []string{"B", "MAIN"}, infixes)
 }
 
 func TestLoadEnvWithInfix(t *testing.T) {
-	replaceTestEnv(map[string]string{
+	env := map[string]string{
 		"MINIT_UNIT_A1_COMMAND":       "echo 'hello world'",
 		"MINIT_UNIT_A2_COMMAND":       "echo 'hello world'",
 		"MINIT_UNIT_A2_KIND":          "cron",
@@ -70,10 +44,9 @@ func TestLoadEnvWithInfix(t *testing.T) {
 		"MINIT_UNIT_A4_KIND":          "render",
 		"MINIT_UNIT_A4_FILES":         "hello.txt;world.txt",
 		"MINIT_UNIT_A4_RAW":           "true",
-	})
-	defer restoreTestEnv()
+	}
 
-	unit, ok, err := LoadEnvWithInfix("A1")
+	unit, ok, err := LoadEnvWithInfix(env, "A1")
 	require.NoError(t, err)
 	require.True(t, ok)
 	require.Equal(t, Unit{
@@ -85,7 +58,7 @@ func TestLoadEnvWithInfix(t *testing.T) {
 		},
 	}, unit)
 
-	unit, ok, err = LoadEnvWithInfix("A2")
+	unit, ok, err = LoadEnvWithInfix(env, "A2")
 	require.NoError(t, err)
 	require.True(t, ok)
 	require.Equal(t, Unit{
@@ -112,7 +85,7 @@ func TestLoadEnvWithInfix(t *testing.T) {
 
 	blockingTrue := false
 
-	unit, ok, err = LoadEnvWithInfix("A3")
+	unit, ok, err = LoadEnvWithInfix(env, "A3")
 	require.NoError(t, err)
 	require.True(t, ok)
 	require.Equal(t, Unit{
@@ -125,7 +98,7 @@ func TestLoadEnvWithInfix(t *testing.T) {
 		},
 	}, unit)
 
-	unit, ok, err = LoadEnvWithInfix("A4")
+	unit, ok, err = LoadEnvWithInfix(env, "A4")
 	require.NoError(t, err)
 	require.True(t, ok)
 	require.Equal(t, Unit{
@@ -140,17 +113,16 @@ func TestLoadEnvWithInfix(t *testing.T) {
 }
 
 func TestLoadEnv(t *testing.T) {
-	replaceTestEnv(map[string]string{
+	env := map[string]string{
 		"MINIT_MAIN":         "hello 'world destroyer'",
 		"MINIT_MAIN_KIND":    "cron",
 		"MINIT_MAIN_NAME":    "test-main",
 		"MINIT_MAIN_CRON":    "1 2 3 4 5",
 		"MINIT_MAIN_GROUP":   "bbb",
 		"MINIT_MAIN_CHARSET": "gbk",
-	})
-	defer restoreTestEnv()
+	}
 
-	unit, ok, err := LoadEnv()
+	unit, ok, err := LoadEnv(env)
 	require.NoError(t, err)
 	require.True(t, ok)
 	require.Equal(t, Unit{
