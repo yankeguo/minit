@@ -97,7 +97,5 @@ func TestRunnerCronCritical(t *testing.T) {
 
 	time.Sleep(time.Millisecond * 2500)
 
-	ctxCancel()
-
 	wg.Wait()
 }

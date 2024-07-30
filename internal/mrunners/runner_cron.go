@@ -10,15 +10,10 @@ import (
 
 func init() {
 	Register(munit.KindCron, func(opts RunnerOptions) (runner Runner, err error) {
-		if err = opts.Unit.RequireCommand(); err != nil {
-			return
-		}
-		if err = opts.Unit.RequireCron(); err != nil {
-			return
-		}
-		if _, err = cron.ParseStandard(opts.Unit.Cron); err != nil {
-			return
-		}
+		defer rg.Guard(&err)
+		rg.Must0(opts.Unit.RequireCommand())
+		rg.Must0(opts.Unit.RequireCron())
+		rg.Must(cron.ParseStandard(opts.Unit.Cron))
 
 		runner.Order = 30
 		runner.Long = true

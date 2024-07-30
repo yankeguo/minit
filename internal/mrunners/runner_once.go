@@ -9,9 +9,8 @@ import (
 
 func init() {
 	Register(munit.KindOnce, func(opts RunnerOptions) (runner Runner, err error) {
-		if err = opts.Unit.RequireCommand(); err != nil {
-			return
-		}
+		defer rg.Guard(&err)
+		rg.Must0(opts.Unit.RequireCommand())
 
 		runner.Order = 20
 		runner.Action = &actionOnce{RunnerOptions: opts}

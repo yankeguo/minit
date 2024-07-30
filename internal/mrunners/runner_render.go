@@ -18,9 +18,8 @@ import (
 
 func init() {
 	Register(munit.KindRender, func(opts RunnerOptions) (runner Runner, err error) {
-		if err = opts.Unit.RequireFiles(); err != nil {
-			return
-		}
+		defer rg.Guard(&err)
+		rg.Must0(opts.Unit.RequireFiles())
 
 		runner.Order = 10
 		runner.Action = &actionRender{RunnerOptions: opts}
