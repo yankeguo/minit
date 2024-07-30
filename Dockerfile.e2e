@@ -1,5 +1,0 @@
-FROM busybox
-
-ADD minit /minit
-
-ENTRYPOINT [ "/minit" ]
