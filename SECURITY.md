@@ -8,4 +8,4 @@
 
 ## Reporting a Vulnerability
 
-Send an encrypted mail to hi@guoyk.xyz, with [this GPG public key](https://guoyk.xyz/gpg/133641b2.asc.txt)
+Send an encrypted mail to hi@yankeguo.com, with [this GPG public key](https://keys.openpgp.org/vks/v1/by-fingerprint/70CA71CDFF7A65F1C7F8232C0ACF84457CA772B6)

@@ -138,7 +138,6 @@ Set `blocking: false` to run `once` units in background.
 
 If `critical` field is set to `true`, `minit` will stop if this unit failed.
 
-
 ### 3.3 Type: `daemon`
 
 `daemon` units execute after `render` and `once`. It runs long-running command.
