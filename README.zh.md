@@ -45,7 +45,9 @@ ENTRYPOINT ["/minit"]
   kind: render
   name: render-test
   files:
-    - /tmp/*.txt
+    - /opt/*.txt # inline rendering
+    - /opt/source.txt:/opt/target.txt # source file to target file (two parts)
+    - /opt/source/dir:*.txt:/opt/target/dir # source dir to target dir (three parts)
   ```
 
   `/tmp/sample.txt`
