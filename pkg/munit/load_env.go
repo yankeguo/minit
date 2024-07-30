@@ -2,16 +2,10 @@ package munit
 
 import (
 	"errors"
-	"os"
 	"strconv"
 	"strings"
 
 	"github.com/yankeguo/minit/pkg/shellquote"
-)
-
-var (
-	osEnviron = os.Environ
-	osGetenv  = os.Getenv
 )
 
 const (
