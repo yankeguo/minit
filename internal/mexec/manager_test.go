@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"github.com/yankeguo/minit/pkg/mlog"
+	"github.com/yankeguo/minit/internal/mlog"
 )
 
 func TestNewManager(t *testing.T) {

@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/yankeguo/minit/pkg/merrs"
+	"github.com/yankeguo/minit/internal/merrs"
 )
 
 type ProcLoggerOptions struct {

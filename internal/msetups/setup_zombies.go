@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/yankeguo/minit/pkg/mlog"
+	"github.com/yankeguo/minit/internal/mlog"
 )
 
 func init() {

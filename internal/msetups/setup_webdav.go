@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/yankeguo/minit/pkg/mlog"
+	"github.com/yankeguo/minit/internal/mlog"
 	"golang.org/x/net/webdav"
 )
 

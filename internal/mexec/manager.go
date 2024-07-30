@@ -10,8 +10,8 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/yankeguo/minit/pkg/menv"
-	"github.com/yankeguo/minit/pkg/mlog"
+	"github.com/yankeguo/minit/internal/menv"
+	"github.com/yankeguo/minit/internal/mlog"
 	"github.com/yankeguo/minit/pkg/shellquote"
 	"golang.org/x/text/encoding"
 	"golang.org/x/text/encoding/simplifiedchinese"

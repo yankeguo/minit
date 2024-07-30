@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/yankeguo/minit/pkg/munit"
+	"github.com/yankeguo/minit/internal/munit"
 )
 
 func init() {

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/robfig/cron/v3"
-	"github.com/yankeguo/minit/pkg/munit"
+	"github.com/yankeguo/minit/internal/munit"
 )
 
 func init() {

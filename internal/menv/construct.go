@@ -3,7 +3,7 @@ package menv
 import (
 	"strings"
 
-	"github.com/yankeguo/minit/pkg/mtmpl"
+	"github.com/yankeguo/minit/internal/mtmpl"
 )
 
 const (

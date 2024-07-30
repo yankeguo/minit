@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"unicode"
 
-	"github.com/yankeguo/minit/pkg/menv"
-	"github.com/yankeguo/minit/pkg/mtmpl"
-	"github.com/yankeguo/minit/pkg/munit"
+	"github.com/yankeguo/minit/internal/menv"
+	"github.com/yankeguo/minit/internal/mtmpl"
+	"github.com/yankeguo/minit/internal/munit"
 )
 
 func init() {

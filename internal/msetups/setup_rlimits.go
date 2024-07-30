@@ -9,7 +9,7 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/yankeguo/minit/pkg/mlog"
+	"github.com/yankeguo/minit/internal/mlog"
 	"golang.org/x/sys/unix"
 )
 

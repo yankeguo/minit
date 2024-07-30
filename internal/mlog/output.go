@@ -5,7 +5,7 @@ import (
 	"io"
 	"sync"
 
-	"github.com/yankeguo/minit/pkg/merrs"
+	"github.com/yankeguo/minit/internal/merrs"
 )
 
 // Output interface for single stream log output

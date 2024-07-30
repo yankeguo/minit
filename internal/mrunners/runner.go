@@ -5,9 +5,9 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/yankeguo/minit/pkg/mexec"
-	"github.com/yankeguo/minit/pkg/mlog"
-	"github.com/yankeguo/minit/pkg/munit"
+	"github.com/yankeguo/minit/internal/mexec"
+	"github.com/yankeguo/minit/internal/mlog"
+	"github.com/yankeguo/minit/internal/munit"
 )
 
 type RunnerAction interface {

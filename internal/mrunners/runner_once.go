@@ -3,7 +3,7 @@ package mrunners
 import (
 	"context"
 
-	"github.com/yankeguo/minit/pkg/munit"
+	"github.com/yankeguo/minit/internal/munit"
 )
 
 func init() {

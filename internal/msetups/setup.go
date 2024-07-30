@@ -4,7 +4,7 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/yankeguo/minit/pkg/mlog"
+	"github.com/yankeguo/minit/internal/mlog"
 )
 
 type SetupFunc = func(log mlog.ProcLogger) error
