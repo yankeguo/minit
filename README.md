@@ -97,7 +97,9 @@ See [pkg/mtmpl/funcs.go](pkg/mtmpl/funcs.go) for available functions.
 kind: render
 name: render-demo
 files:
-  - /opt/*.txt
+  - /opt/*.txt # inline rendering
+  - /opt/source.txt:/opt/target.txt # source file to target file (two parts)
+  - /opt/source/dir:*.txt:/opt/target/dir # source dir to target dir (three parts)
 ```
 
 - `/opt/demo.txt`

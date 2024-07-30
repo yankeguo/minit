@@ -31,3 +31,17 @@ func (ro RunnerOptions) Errorf(layout string, items ...any) {
 func (ro RunnerOptions) Execute() error {
 	return ro.Exec.Execute(ro.Unit.ExecuteOptions(ro.Logger))
 }
+
+func (ro RunnerOptions) PanicOnCritical(message string, err error) error {
+	if err == nil {
+		return nil
+	}
+
+	ro.Error(message + ": " + err.Error())
+
+	if ro.Unit.Critical {
+		panic(err)
+	} else {
+		return nil
+	}
+}

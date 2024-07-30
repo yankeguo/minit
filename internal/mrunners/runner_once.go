@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/yankeguo/minit/internal/munit"
+	"github.com/yankeguo/rg"
 )
 
 func init() {
@@ -25,25 +26,18 @@ type actionOnce struct {
 func (r *actionOnce) Do(ctx context.Context) (err error) {
 	r.Print("controller started")
 	defer r.Print("controller exited")
+	defer rg.Guard(&err)
 
 	if r.Unit.Blocking != nil && !*r.Unit.Blocking {
 		go func() {
-			if err := r.Execute(); err != nil {
-				r.Error("failed executing (non-blocking): " + err.Error())
-				return
-			}
+			var err error
+			defer rg.Guard(&err)
+			err = r.PanicOnCritical("failed executing (non-blocking)", r.Execute())
 		}()
 		return
 	}
 
-	if err = r.Execute(); err != nil {
-		r.Error("failed executing: " + err.Error())
-		if r.Unit.Critical {
-			return
-		} else {
-			err = nil
-		}
-	}
+	err = r.PanicOnCritical("failed executing", r.Execute())
 
 	return
 }

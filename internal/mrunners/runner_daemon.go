@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/yankeguo/minit/internal/munit"
+	"github.com/yankeguo/rg"
 )
 
 func init() {
@@ -27,6 +28,7 @@ type actionDaemon struct {
 func (r *actionDaemon) Do(ctx context.Context) (err error) {
 	r.Print("controller started")
 	defer r.Print("controller exited")
+	defer rg.Guard(&err)
 
 forLoop:
 	for {
@@ -34,15 +36,7 @@ forLoop:
 			break forLoop
 		}
 
-		if err = r.Execute(); err != nil {
-			r.Error("failed executing:" + err.Error())
-
-			if r.Unit.Critical {
-				return
-			} else {
-				err = nil
-			}
-		}
+		err = r.PanicOnCritical("failed executing", r.Execute())
 
 		if ctx.Err() != nil {
 			break forLoop

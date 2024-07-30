@@ -2,7 +2,6 @@ package munit
 
 import (
 	"errors"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -26,8 +25,8 @@ type Loader struct {
 func NewLoader() (ld *Loader) {
 	return &Loader{
 		filter: NewFilter(
-			strings.TrimSpace(os.Getenv("MINIT_ENABLE")),
-			strings.TrimSpace(os.Getenv("MINIT_DISABLE")),
+			strings.TrimSpace(osGetenv("MINIT_ENABLE")),
+			strings.TrimSpace(osGetenv("MINIT_DISABLE")),
 		),
 	}
 }
@@ -128,7 +127,7 @@ func (ld *Loader) Load(opts LoadOptions) (output []Unit, skipped []Unit, err err
 
 		// eval cron
 		if unit.Cron != "" {
-			unit.Cron = os.ExpandEnv(unit.Cron)
+			unit.Cron = osExpandEnv(unit.Cron)
 		}
 
 		// replicas

@@ -5,6 +5,7 @@ import (
 
 	"github.com/robfig/cron/v3"
 	"github.com/yankeguo/minit/internal/munit"
+	"github.com/yankeguo/rg"
 )
 
 func init() {
@@ -33,16 +34,10 @@ type actionCron struct {
 func (r *actionCron) Do(ctx context.Context) (err error) {
 	r.Print("controller started")
 	defer r.Print("controller exited")
+	defer rg.Guard(&err)
 
 	if r.Unit.Immediate {
-		if err = r.Execute(); err != nil {
-			r.Error("failed executing: " + err.Error())
-			if r.Unit.Critical {
-				return
-			} else {
-				err = nil
-			}
-		}
+		err = r.PanicOnCritical("failed executing", r.Execute())
 	}
 
 	cr := cron.New(cron.WithLogger(cron.PrintfLogger(r.Logger)))
@@ -53,23 +48,25 @@ func (r *actionCron) Do(ctx context.Context) (err error) {
 		chErr = make(chan error, 1)
 	}
 
-	if _, err = cr.AddFunc(r.Unit.Cron, func() {
-		r.Print("triggered")
-		if err := r.Execute(); err != nil {
-			r.Error("failed executing: " + err.Error())
-			if chErr != nil {
-				select {
-				case chErr <- err:
-				default:
+	rg.Must(
+		cr.AddFunc(
+			r.Unit.Cron,
+			func() {
+				r.Print("triggered")
+				if err := func() (err error) {
+					defer rg.Guard(&err)
+					return r.PanicOnCritical("failed executing", r.Execute())
+				}(); err != nil {
+					if chErr != nil {
+						select {
+						case chErr <- err:
+						default:
+						}
+					}
 				}
-			} else {
-				err = nil
-			}
-		}
-	}); err != nil {
-		// should fail since we have checked in init
-		return
-	}
+			},
+		),
+	)
 
 	cr.Start()
 

@@ -1,16 +1,20 @@
 package munit
 
 import (
-	"os"
+	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
 func TestNewLoader(t *testing.T) {
-	os.Setenv("MINIT_ENABLE", "@default")
-	os.Setenv("MINIT_DISABLE", "task-3,task-5")
-	os.Setenv("DEBUG_EVERY", "10s")
+	replaceTestEnv(map[string]string{
+		"MINIT_ENABLE":  "@default",
+		"MINIT_DISABLE": "task-3,task-5",
+		"DEBUG_EVERY":   "10s",
+	})
+	defer restoreTestEnv()
+
 	ld := NewLoader()
 	units, skipped, err := ld.Load(LoadOptions{
 		Dir: "testdata",
@@ -39,29 +43,31 @@ func TestDupOrMakeMap(t *testing.T) {
 }
 
 func TestLoaderWithNewEnv(t *testing.T) {
-	os.Unsetenv("MINIT_ENABLE")
-	os.Unsetenv("MINIT_DISABLE")
-	os.Unsetenv("MINIT_MAIN_NAME")
-	os.Unsetenv("MINIT_MAIN_KIND")
-	os.Unsetenv("MINIT_MAIN_ONCE")
-	os.Setenv("MINIT_MAIN", "legacy main")
-	os.Setenv("MINIT_UNIT_CACHE_COMMAND", "redis-server")
-	os.Setenv("MINIT_UNIT_INITIAL_COMMAND", "touch /tmp/initial")
-	os.Setenv("MINIT_UNIT_INITIAL_NAME", "job-initial")
-	os.Setenv("MINIT_UNIT_INITIAL_ENV", "ZAA=ZBB;ZCC=ZDD")
-	os.Setenv("MINIT_UNIT_INITIAL_KIND", "once")
+	replaceTestEnv(map[string]string{
+		"MINIT_MAIN":                 "legacy main",
+		"MINIT_UNIT_CACHE_COMMAND":   "redis-server",
+		"MINIT_UNIT_INITIAL_COMMAND": "touch /tmp/initial",
+		"MINIT_UNIT_INITIAL_NAME":    "job-initial",
+		"MINIT_UNIT_INITIAL_ENV":     "ZAA=ZBB;ZCC=ZDD",
+		"MINIT_UNIT_INITIAL_KIND":    "once",
+	})
+	defer restoreTestEnv()
 
 	l := NewLoader()
 	units, _, err := l.Load(LoadOptions{Env: true})
 	require.NoError(t, err)
 	require.Len(t, units, 3)
 
-	require.Equal(t, "env-main", units[0].Name)
-	require.Equal(t, []string{"legacy", "main"}, units[0].Command)
+	sort.Slice(units, func(i, j int) bool {
+		return units[i].Name < units[j].Name
+	})
+
+	require.Equal(t, "env-cache", units[0].Name)
+	require.Equal(t, []string{"redis-server"}, units[0].Command)
 	require.Equal(t, KindDaemon, units[0].Kind)
 
-	require.Equal(t, "env-cache", units[1].Name)
-	require.Equal(t, []string{"redis-server"}, units[1].Command)
+	require.Equal(t, "env-main", units[1].Name)
+	require.Equal(t, []string{"legacy", "main"}, units[1].Command)
 	require.Equal(t, KindDaemon, units[1].Kind)
 
 	require.Equal(t, "job-initial", units[2].Name)

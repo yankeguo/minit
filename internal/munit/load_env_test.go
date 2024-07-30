@@ -19,11 +19,17 @@ func replaceTestEnv(m map[string]string) {
 		}
 		return env
 	}
+	osExpandEnv = func(s string) string {
+		return os.Expand(s, func(key string) string {
+			return m[key]
+		})
+	}
 }
 
 func restoreTestEnv() {
 	osGetenv = os.Getenv
 	osEnviron = os.Environ
+	osExpandEnv = os.ExpandEnv
 }
 
 func TestDetectEnvInfixes(t *testing.T) {
