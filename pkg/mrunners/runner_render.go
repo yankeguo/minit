@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"unicode"
 
 	"github.com/yankeguo/minit/pkg/menv"
 	"github.com/yankeguo/minit/pkg/mtmpl"
@@ -62,6 +63,8 @@ func (r *runnerRender) Do(ctx context.Context) (err error) {
 		return
 	}
 
+	allNames := map[string]struct{}{}
+
 	for _, filePattern := range r.Unit.Files {
 		var names []string
 
@@ -78,35 +81,37 @@ func (r *runnerRender) Do(ctx context.Context) (err error) {
 		}
 
 		for _, name := range names {
-			if err = r.doFile(ctx, name, env); err != nil {
-				r.Error("failed rendering: " + name + ": " + err.Error())
+			allNames[name] = struct{}{}
+		}
+	}
 
-				if r.Unit.Critical {
-					return
-				} else {
-					err = nil
-				}
+	for name := range allNames {
+		if err = r.doFile(ctx, name, env); err != nil {
+			r.Error("failed rendering: " + name + ": " + err.Error())
 
-				continue
+			if r.Unit.Critical {
+				return
+			} else {
+				err = nil
 			}
 
-			r.Print("done rendering: " + name)
+			continue
 		}
+
+		r.Print("done rendering: " + name)
 	}
 
 	return
 }
 
 func sanitizeLines(s []byte) []byte {
-	lines := bytes.Split(s, []byte("\n"))
-	out := &bytes.Buffer{}
-	for _, line := range lines {
-		line = bytes.TrimSpace(line)
+	var out [][]byte
+	for _, line := range bytes.Split(s, []byte("\n")) {
+		line = bytes.TrimRightFunc(line, unicode.IsSpace)
 		if len(line) == 0 {
 			continue
 		}
-		out.Write(line)
-		out.WriteRune('\n')
+		out = append(out, line)
 	}
-	return out.Bytes()
+	return bytes.Join(out, []byte("\n"))
 }

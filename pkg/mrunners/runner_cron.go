@@ -48,6 +48,7 @@ func (r *runnerCron) Do(ctx context.Context) (err error) {
 	cr := cron.New(cron.WithLogger(cron.PrintfLogger(r.Logger)))
 
 	var chErr chan error
+
 	if r.Unit.Critical {
 		chErr = make(chan error, 1)
 	}
@@ -56,7 +57,7 @@ func (r *runnerCron) Do(ctx context.Context) (err error) {
 		r.Print("triggered")
 		if err := r.Exec.Execute(r.Unit.ExecuteOptions(r.Logger)); err != nil {
 			r.Error("failed executing: " + err.Error())
-			if r.Unit.Critical {
+			if chErr != nil {
 				select {
 				case chErr <- err:
 				default:
@@ -72,7 +73,7 @@ func (r *runnerCron) Do(ctx context.Context) (err error) {
 
 	cr.Start()
 
-	if r.Unit.Critical {
+	if chErr != nil {
 		select {
 		case <-ctx.Done():
 		case err = <-chErr:
