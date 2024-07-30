@@ -5,6 +5,8 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+
+	"github.com/yankeguo/rg"
 )
 
 var (
@@ -14,8 +16,8 @@ var (
 const (
 	NameMinit = "minit"
 
-	PrefixGroup = "@"
-	PrefixKind  = "&"
+	FilterPrefixGroup = "@"
+	FilterPrefixKind  = "&"
 )
 
 type LoadOptions struct {
@@ -25,24 +27,16 @@ type LoadOptions struct {
 }
 
 func Load(opts LoadOptions) (output []Unit, skipped []Unit, err error) {
+	defer rg.Guard(&err)
+
 	var units []Unit
 
-	// load units
 	if opts.Dir != "" {
-		var dUnits []Unit
-		if dUnits, err = LoadDir(opts.Dir); err != nil {
-			return
-		}
-		units = append(units, dUnits...)
+		units = append(units, rg.Must(LoadDir(opts.Dir))...)
 	}
 
 	if len(opts.Args) > 0 {
-		var unit Unit
-		var ok bool
-		if unit, ok, err = LoadArgs(opts.Args); err != nil {
-			return
-		}
-		if ok {
+		if unit, ok := rg.Must2(LoadArgs(opts.Args)); ok {
 			units = append(units, unit)
 		}
 	}
@@ -56,28 +50,12 @@ func Load(opts LoadOptions) (output []Unit, skipped []Unit, err error) {
 			opts.Env["MINIT_DISABLE"],
 		)
 
-		{
-			// legacy minit main
-			var (
-				unit Unit
-				ok   bool
-			)
-			if unit, ok, err = LoadEnv(opts.Env); err != nil {
-				return
-			} else if ok {
-				units = append(units, unit)
-			}
+		if unit, ok := rg.Must2(LoadEnv(opts.Env)); ok {
+			units = append(units, unit)
 		}
 
 		for _, infix := range DetectEnvInfixes(opts.Env) {
-			var (
-				unit Unit
-				ok   bool
-			)
-			if unit, ok, err = LoadEnvWithInfix(opts.Env, infix); err != nil {
-				return
-			}
-			if ok {
+			if unit, ok := rg.Must2(LoadEnvWithInfix(opts.Env, infix)); ok {
 				units = append(units, unit)
 			}
 		}
@@ -109,6 +87,7 @@ func Load(opts LoadOptions) (output []Unit, skipped []Unit, err error) {
 			err = errors.New("duplicated unit name: " + unit.Name)
 			return
 		}
+
 		names[unit.Name] = struct{}{}
 
 		// fix default group
@@ -135,7 +114,7 @@ func Load(opts LoadOptions) (output []Unit, skipped []Unit, err error) {
 				subUnit := unit
 				subUnit.Name = unit.Name + "-" + strconv.Itoa(i+1)
 				subUnit.Count = 1
-				dupOrMakeMap(&subUnit.Env)
+				duplicateMap(&subUnit.Env)
 				subUnit.Env["MINIT_UNIT_NAME"] = subUnit.Name
 				subUnit.Env["MINIT_UNIT_SUB_ID"] = strconv.Itoa(i + 1)
 
@@ -143,7 +122,7 @@ func Load(opts LoadOptions) (output []Unit, skipped []Unit, err error) {
 			}
 		} else {
 			unit.Count = 1
-			dupOrMakeMap(&unit.Env)
+			duplicateMap(&unit.Env)
 			unit.Env["MINIT_UNIT_NAME"] = unit.Name
 			unit.Env["MINIT_UNIT_SUB_ID"] = "1"
 
@@ -154,7 +133,7 @@ func Load(opts LoadOptions) (output []Unit, skipped []Unit, err error) {
 	return
 }
 
-func dupOrMakeMap[T comparable, U any](m *map[T]U) {
+func duplicateMap[T comparable, U any](m *map[T]U) {
 	nm := make(map[T]U)
 	if *m != nil {
 		for k, v := range *m {
