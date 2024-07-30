@@ -19,7 +19,7 @@ func TestRunnerDaemon(t *testing.T) {
 
 	buf := &bytes.Buffer{}
 
-	r := &runnerDaemon{
+	r := &actionDaemon{
 		RunnerOptions: RunnerOptions{
 			Unit: munit.Unit{
 				Kind:  munit.KindDaemon,
@@ -64,7 +64,7 @@ func TestRunnerDaemonCritical(t *testing.T) {
 
 	buf := &bytes.Buffer{}
 
-	r := &runnerDaemon{
+	r := &actionDaemon{
 		RunnerOptions: RunnerOptions{
 			Unit: munit.Unit{
 				Kind:  munit.KindDaemon,

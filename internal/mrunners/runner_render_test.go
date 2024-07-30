@@ -24,7 +24,7 @@ func TestRunnerRender(t *testing.T) {
 
 	buf := &bytes.Buffer{}
 
-	r := &runnerRender{
+	r := &actionRender{
 		RunnerOptions: RunnerOptions{
 			Unit: munit.Unit{
 				Kind:     munit.KindRender,

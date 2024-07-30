@@ -20,16 +20,16 @@ func init() {
 		}
 
 		runner.Order = 10
-		runner.Action = &runnerRender{RunnerOptions: opts}
+		runner.Action = &actionRender{RunnerOptions: opts}
 		return
 	})
 }
 
-type runnerRender struct {
+type actionRender struct {
 	RunnerOptions
 }
 
-func (r *runnerRender) doFile(ctx context.Context, name string, env map[string]string) (err error) {
+func (r *actionRender) doFile(ctx context.Context, name string, env map[string]string) (err error) {
 	var buf []byte
 	if buf, err = os.ReadFile(name); err != nil {
 		err = fmt.Errorf("failed reading %s: %s", name, err.Error())
@@ -52,7 +52,7 @@ func (r *runnerRender) doFile(ctx context.Context, name string, env map[string]s
 	return
 }
 
-func (r *runnerRender) Do(ctx context.Context) (err error) {
+func (r *actionRender) Do(ctx context.Context) (err error) {
 	r.Print("controller started")
 	defer r.Print("controller exited")
 
@@ -69,7 +69,7 @@ func (r *runnerRender) Do(ctx context.Context) (err error) {
 		var names []string
 
 		if names, err = filepath.Glob(filePattern); err != nil {
-			r.Error(fmt.Sprintf("failed globbing: %s: %s", filePattern, err.Error()))
+			r.Errorf("failed globbing: %s: %s", filePattern, err.Error())
 
 			if r.Unit.Critical {
 				return
@@ -104,6 +104,7 @@ func (r *runnerRender) Do(ctx context.Context) (err error) {
 	return
 }
 
+// sanitizeLines removes empty lines and trailing spaces
 func sanitizeLines(s []byte) []byte {
 	var out [][]byte
 	for _, line := range bytes.Split(s, []byte("\n")) {

@@ -15,16 +15,16 @@ func init() {
 
 		runner.Order = 40
 		runner.Long = true
-		runner.Action = &runnerDaemon{RunnerOptions: opts}
+		runner.Action = &actionDaemon{RunnerOptions: opts}
 		return
 	})
 }
 
-type runnerDaemon struct {
+type actionDaemon struct {
 	RunnerOptions
 }
 
-func (r *runnerDaemon) Do(ctx context.Context) (err error) {
+func (r *actionDaemon) Do(ctx context.Context) (err error) {
 	r.Print("controller started")
 	defer r.Print("controller exited")
 
@@ -34,7 +34,7 @@ forLoop:
 			break forLoop
 		}
 
-		if err = r.Exec.Execute(r.Unit.ExecuteOptions(r.Logger)); err != nil {
+		if err = r.Execute(); err != nil {
 			r.Error("failed executing:" + err.Error())
 
 			if r.Unit.Critical {

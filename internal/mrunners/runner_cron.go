@@ -21,21 +21,21 @@ func init() {
 
 		runner.Order = 30
 		runner.Long = true
-		runner.Action = &runnerCron{RunnerOptions: opts}
+		runner.Action = &actionCron{RunnerOptions: opts}
 		return
 	})
 }
 
-type runnerCron struct {
+type actionCron struct {
 	RunnerOptions
 }
 
-func (r *runnerCron) Do(ctx context.Context) (err error) {
+func (r *actionCron) Do(ctx context.Context) (err error) {
 	r.Print("controller started")
 	defer r.Print("controller exited")
 
 	if r.Unit.Immediate {
-		if err = r.Exec.Execute(r.Unit.ExecuteOptions(r.Logger)); err != nil {
+		if err = r.Execute(); err != nil {
 			r.Error("failed executing: " + err.Error())
 			if r.Unit.Critical {
 				return
@@ -55,7 +55,7 @@ func (r *runnerCron) Do(ctx context.Context) (err error) {
 
 	if _, err = cr.AddFunc(r.Unit.Cron, func() {
 		r.Print("triggered")
-		if err := r.Exec.Execute(r.Unit.ExecuteOptions(r.Logger)); err != nil {
+		if err := r.Execute(); err != nil {
 			r.Error("failed executing: " + err.Error())
 			if chErr != nil {
 				select {

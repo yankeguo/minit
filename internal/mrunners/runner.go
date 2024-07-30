@@ -4,16 +4,14 @@ import (
 	"context"
 	"errors"
 	"sync"
-
-	"github.com/yankeguo/minit/internal/mexec"
-	"github.com/yankeguo/minit/internal/mlog"
-	"github.com/yankeguo/minit/internal/munit"
 )
 
+// RunnerAction is the interface of runner action
 type RunnerAction interface {
 	Do(ctx context.Context) (err error)
 }
 
+// Runner is the struct of runner
 type Runner struct {
 	Order  int
 	Long   bool
@@ -25,22 +23,10 @@ var (
 	factoriesLock sync.Locker = &sync.Mutex{}
 )
 
-type RunnerOptions struct {
-	Unit   munit.Unit
-	Exec   mexec.Manager
-	Logger mlog.ProcLogger
-}
-
-func (ro RunnerOptions) Print(message string) {
-	ro.Logger.Print("minit: " + ro.Unit.Kind + "/" + ro.Unit.Name + ": " + message)
-}
-
-func (ro RunnerOptions) Error(message string) {
-	ro.Logger.Error("minit: " + ro.Unit.Kind + "/" + ro.Unit.Name + ": " + message)
-}
-
+// RunnerFactory is the type of runner factory
 type RunnerFactory = func(opts RunnerOptions) (Runner, error)
 
+// Register registers a runner factory
 func Register(name string, factory RunnerFactory) {
 	factoriesLock.Lock()
 	defer factoriesLock.Unlock()
@@ -48,6 +34,7 @@ func Register(name string, factory RunnerFactory) {
 	factories[name] = factory
 }
 
+// Create creates a runner from options
 func Create(opts RunnerOptions) (Runner, error) {
 	factoriesLock.Lock()
 	defer factoriesLock.Unlock()

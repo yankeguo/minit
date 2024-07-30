@@ -13,22 +13,22 @@ func init() {
 		}
 
 		runner.Order = 20
-		runner.Action = &runnerOnce{RunnerOptions: opts}
+		runner.Action = &actionOnce{RunnerOptions: opts}
 		return
 	})
 }
 
-type runnerOnce struct {
+type actionOnce struct {
 	RunnerOptions
 }
 
-func (r *runnerOnce) Do(ctx context.Context) (err error) {
+func (r *actionOnce) Do(ctx context.Context) (err error) {
 	r.Print("controller started")
 	defer r.Print("controller exited")
 
 	if r.Unit.Blocking != nil && !*r.Unit.Blocking {
 		go func() {
-			if err := r.Exec.Execute(r.Unit.ExecuteOptions(r.Logger)); err != nil {
+			if err := r.Execute(); err != nil {
 				r.Error("failed executing (non-blocking): " + err.Error())
 				return
 			}
@@ -36,7 +36,7 @@ func (r *runnerOnce) Do(ctx context.Context) (err error) {
 		return
 	}
 
-	if err = r.Exec.Execute(r.Unit.ExecuteOptions(r.Logger)); err != nil {
+	if err = r.Execute(); err != nil {
 		r.Error("failed executing: " + err.Error())
 		if r.Unit.Critical {
 			return

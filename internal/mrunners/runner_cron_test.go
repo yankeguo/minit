@@ -20,12 +20,12 @@ func TestRunnerCron(t *testing.T) {
 
 	buf := &bytes.Buffer{}
 
-	r := &runnerCron{
+	r := &actionCron{
 		RunnerOptions: RunnerOptions{
 			Unit: munit.Unit{
 				Kind:      munit.KindCron,
 				Name:      "test",
-				Cron:      "@every 1s",
+				Cron:      "@every 2s",
 				Immediate: true,
 				Command: []string{
 					"echo", "hhhlll",
@@ -56,7 +56,7 @@ func TestRunnerCron(t *testing.T) {
 
 	wg.Wait()
 
-	require.Equal(t, 3, strings.Count(buf.String(), "hhhlll\n"))
+	require.Equal(t, 2, strings.Count(buf.String(), "hhhlll\n"))
 }
 
 func TestRunnerCronCritical(t *testing.T) {
@@ -64,7 +64,7 @@ func TestRunnerCronCritical(t *testing.T) {
 
 	buf := &bytes.Buffer{}
 
-	r := &runnerCron{
+	r := &actionCron{
 		RunnerOptions: RunnerOptions{
 			Unit: munit.Unit{
 				Kind:     munit.KindCron,

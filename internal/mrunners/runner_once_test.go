@@ -18,7 +18,7 @@ func TestRunnerOnce(t *testing.T) {
 
 	buf := &bytes.Buffer{}
 
-	r := &runnerOnce{
+	r := &actionOnce{
 		RunnerOptions: RunnerOptions{
 			Unit: munit.Unit{
 				Kind:  munit.KindOnce,
@@ -47,7 +47,7 @@ func TestRunnerOnceCritical(t *testing.T) {
 
 	buf := &bytes.Buffer{}
 
-	r := &runnerOnce{
+	r := &actionOnce{
 		RunnerOptions: RunnerOptions{
 			Unit: munit.Unit{
 				Kind:  munit.KindOnce,
@@ -78,7 +78,7 @@ func TestRunnerOnceCriticalNonBlocking(t *testing.T) {
 
 	blocking := false
 
-	r := &runnerOnce{
+	r := &actionOnce{
 		RunnerOptions: RunnerOptions{
 			Unit: munit.Unit{
 				Kind:     munit.KindOnce,
