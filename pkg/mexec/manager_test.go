@@ -39,6 +39,7 @@ func TestNewManager(t *testing.T) {
 
 	buf, err := os.ReadFile(filepath.Join("testdata", "test.out.log"))
 	require.Contains(t, string(buf), "BBB")
+	require.NoError(t, err)
 
 	go func() {
 		time.Sleep(time.Second)
@@ -55,9 +56,9 @@ func TestNewManager(t *testing.T) {
 		Command: []string{
 			"sleep", "$AAA",
 		},
-		Logger: logger,
+		Logger:       logger,
+		SuccessCodes: []int{0, 130, -1},
 	})
 	require.NoError(t, err)
-
-	require.True(t, time.Now().Sub(t1) < time.Second*2)
+	require.True(t, time.Since(t1) < time.Second*2)
 }

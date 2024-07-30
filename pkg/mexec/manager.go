@@ -158,7 +158,7 @@ func (m *manager) Execute(opts ExecuteOptions) (err error) {
 	}
 	defer done()
 
-	opts.Logger.Print("minit: " + opts.Name + ": process started")
+	opts.Logger.Printf("minit: %s: process started", opts.Name)
 
 	// streaming
 	go opts.Logger.Out().ReadFrom(outPipe)
@@ -170,23 +170,23 @@ func (m *manager) Execute(opts ExecuteOptions) (err error) {
 	var code int
 
 	if err != nil {
+		opts.Logger.Errorf("minit: %s: process exited with error: %s", opts.Name, err.Error())
 		if ee, ok := err.(*exec.ExitError); ok {
 			code = ee.ExitCode()
 		} else {
-			opts.Logger.Error("minit: " + opts.Name + ": process exited with error: " + err.Error())
 			return
 		}
 	}
 
 	if checkSuccessCode(opts.SuccessCodes, code) {
 		err = nil
-		opts.Logger.Print("minit: " + opts.Name + ": process exited successfully")
+		opts.Logger.Printf("minit: %s: exit code %d is in success_codes", opts.Name, code)
 		return
 	}
 
 	err = fmt.Errorf("exit code: %d is not in success_codes", code)
 
-	opts.Logger.Error("minit: " + opts.Name + ": process exited with error: " + err.Error())
+	opts.Logger.Errorf("minit: %s: process exited with error: %s", opts.Name, err.Error())
 
 	return
 }
