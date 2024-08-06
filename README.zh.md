@@ -45,9 +45,9 @@ ENTRYPOINT ["/minit"]
   kind: render
   name: render-test
   files:
-    - /opt/*.txt # inline rendering
-    - /opt/source.txt:/opt/target.txt # source file to target file (two parts)
-    - /opt/source/dir:*.txt:/opt/target/dir # source dir to target dir (three parts)
+    - /opt/*.txt # 替换文件
+    - /opt/source.txt:/opt/target.txt # 文件对文件，或者目录对目录
+    - /opt/source/dir:*.txt:/opt/target/dir # 目录对目录，使用通配符
   ```
 
   `/tmp/sample.txt`

@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -31,8 +32,7 @@ type actionRender struct {
 	RunnerOptions
 }
 
-func (r *actionRender) doFile(ctx context.Context, src string, dst string, env map[string]string) (err error) {
-
+func (r *actionRender) doFile(_ context.Context, src string, dst string, env map[string]string) (err error) {
 	var buf []byte
 	if buf, err = os.ReadFile(src); err != nil {
 		err = fmt.Errorf("failed reading %s: %s", src, err.Error())
@@ -82,6 +82,82 @@ func (r *actionRender) doFile(ctx context.Context, src string, dst string, env m
 	return
 }
 
+func (r *actionRender) addTask3(tasks map[[2]string]struct{}, dirSrc, match, dirDst string) (err error) {
+	if dirSrc == "" || match == "" || dirDst == "" {
+		err = r.PanicOnCritical("failed parsing file pattern", errors.New("invalid file pattern: "+fmt.Sprintf("%s:%s:%s", dirSrc, match, dirDst)))
+		return
+	}
+
+	var names []string
+
+	if names, err = filepath.Glob(filepath.Join(dirSrc, match)); err != nil {
+		err = r.PanicOnCritical("failed globbing", err)
+		return
+	}
+
+	for _, name := range names {
+		var relPath string
+		if relPath, err = filepath.Rel(dirSrc, name); err != nil {
+			err = r.PanicOnCritical("failed getting relative path", err)
+			continue
+		}
+		tasks[[2]string{name, filepath.Join(dirDst, relPath)}] = struct{}{}
+	}
+	return
+}
+
+func (r *actionRender) addTask2(tasks map[[2]string]struct{}, fileSrc, fileDst string) (err error) {
+	var (
+		infoSrc fs.FileInfo
+		infoDst fs.FileInfo
+	)
+
+	if fileSrc == "" || fileDst == "" {
+		err = r.PanicOnCritical("failed parsing file pattern", errors.New("invalid file pattern: "+fmt.Sprintf("%s:%s", fileSrc, fileDst)))
+		return
+	}
+
+	if infoSrc, err = os.Stat(fileSrc); err != nil {
+		err = r.PanicOnCritical("failed stating source file/directory", err)
+		return
+	}
+
+	if infoDst, err = os.Stat(fileDst); err != nil {
+		if os.IsNotExist(err) {
+			err = nil
+			infoDst = nil
+		} else {
+			err = r.PanicOnCritical("failed stating destination file", err)
+			return
+		}
+	}
+
+	if infoSrc.IsDir() && (infoDst == nil || infoDst.IsDir()) {
+		err = r.addTask3(tasks, fileSrc, "*", fileDst)
+		return
+	} else if !infoSrc.IsDir() && (infoDst == nil || !infoDst.IsDir()) {
+		tasks[[2]string{fileSrc, fileDst}] = struct{}{}
+	} else {
+		err = r.PanicOnCritical("failed checking source and destination", errors.New("source and destination must be both file or directory"))
+		return
+	}
+	return
+}
+
+func (r *actionRender) addTask1(tasks map[[2]string]struct{}, filePattern string) (err error) {
+	var names []string
+
+	if names, err = filepath.Glob(filePattern); err != nil {
+		err = r.PanicOnCritical("failed globbing", err)
+		return
+	}
+
+	for _, name := range names {
+		tasks[[2]string{name, name}] = struct{}{}
+	}
+	return
+}
+
 func (r *actionRender) Do(ctx context.Context) (err error) {
 	r.Print("controller started")
 	defer r.Print("controller exited")
@@ -101,51 +177,28 @@ func (r *actionRender) Do(ctx context.Context) (err error) {
 		segments := strings.Split(filePattern, ":")
 
 		if len(segments) == 3 {
-			var (
-				dirSrc = strings.TrimSpace(segments[0])
-				match  = strings.TrimSpace(segments[1])
-				dirDst = strings.TrimSpace(segments[2])
-			)
-			if dirSrc == "" || match == "" || dirDst == "" {
-				err = r.PanicOnCritical("failed parsing file pattern", errors.New("invalid file pattern: "+filePattern))
+			if err = r.addTask3(
+				tasks,
+				strings.TrimSpace(segments[0]),
+				strings.TrimSpace(segments[1]),
+				strings.TrimSpace(segments[2]),
+			); err != nil {
+				err = r.PanicOnCritical("failed parsing file pattern", err)
 				continue
-			}
-
-			var names []string
-
-			if names, err = filepath.Glob(filepath.Join(dirSrc, match)); err != nil {
-				err = r.PanicOnCritical("failed globbing", err)
-				continue
-			}
-
-			for _, name := range names {
-				var relPath string
-				if relPath, err = filepath.Rel(dirSrc, name); err != nil {
-					err = r.PanicOnCritical("failed getting relative path", err)
-					continue
-				}
-				tasks[[2]string{name, filepath.Join(dirDst, relPath)}] = struct{}{}
 			}
 		} else if len(segments) == 2 {
-			var (
-				fileSrc = strings.TrimSpace(segments[0])
-				fileDst = strings.TrimSpace(segments[1])
-			)
-			if fileSrc == "" || fileDst == "" {
-				err = r.PanicOnCritical("failed parsing file pattern", errors.New("invalid file pattern: "+filePattern))
+			if err = r.addTask2(
+				tasks,
+				strings.TrimSpace(segments[0]),
+				strings.TrimSpace(segments[1]),
+			); err != nil {
+				err = r.PanicOnCritical("failed parsing file pattern", err)
 				continue
 			}
-			tasks[[2]string{fileSrc, fileDst}] = struct{}{}
 		} else if len(segments) == 1 {
-			var names []string
-
-			if names, err = filepath.Glob(filePattern); err != nil {
-				err = r.PanicOnCritical("failed globbing", err)
+			if err = r.addTask1(tasks, filePattern); err != nil {
+				err = r.PanicOnCritical("failed parsing file pattern", err)
 				continue
-			}
-
-			for _, name := range names {
-				tasks[[2]string{name, name}] = struct{}{}
 			}
 		} else {
 			err = r.PanicOnCritical("failed parsing file pattern", errors.New("invalid file pattern: "+filePattern))

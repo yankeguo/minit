@@ -98,7 +98,7 @@ kind: render
 name: render-demo
 files:
   - /opt/*.txt # inline rendering
-  - /opt/source.txt:/opt/target.txt # source file to target file (two parts)
+  - /opt/source.txt:/opt/target.txt # file-to-file or dir-to-dir
   - /opt/source/dir:*.txt:/opt/target/dir # source dir to target dir (three parts)
 ```
 
