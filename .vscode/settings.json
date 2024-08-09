@@ -3,6 +3,7 @@
     "charsets",
     "exem",
     "injectenv",
+    "interp",
     "menv",
     "merrs",
     "mexec",
