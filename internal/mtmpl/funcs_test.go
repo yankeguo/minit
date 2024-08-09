@@ -31,3 +31,19 @@ func TestFuncNeg(t *testing.T) {
 	doTestTemplate(t, `-1`, `{{neg 1}}`, nil)
 	doTestTemplate(t, `false`, `{{neg true}}`, nil)
 }
+
+func TestFuncDic(t *testing.T) {
+	doTestTemplate(t, `bar`, `
+	{{define "hello"}}
+	{{.foo}}
+	{{end}}
+	{{template "hello" (dict "foo" "bar")}}
+	`, nil)
+}
+
+func TestFuncSlice(t *testing.T) {
+	doTestTemplate(t, `1 2 3`, `{{range $i, $v := slice 1 2 3}}{{$v}} {{end}}`, nil)
+	doTestTemplate(t, `3`, `
+	{{index (slice 1 2 3) (add 1 1)}}
+	`, nil)
+}

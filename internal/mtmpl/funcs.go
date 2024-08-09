@@ -10,6 +10,8 @@ import (
 	"strings"
 )
 
+//go:generate python3 funcs.gen.py
+
 // Funcs provided funcs for render
 var Funcs = map[string]any{
 	"netResolveIPAddr":     net.ResolveIPAddr,
@@ -63,18 +65,20 @@ var Funcs = map[string]any{
 	"strconvAoti":          strconv.Atoi,
 	"strconvItoa":          strconv.Itoa,
 
-	"add": add,
-	"neg": neg,
+	"add":   funcAdd,
+	"neg":   funcNeg,
+	"dict":  funcDict,
+	"slice": funcSlice,
 
 	// deprecated
-	"intAdd":           add,
-	"intNeg":           neg,
-	"int64Add":         add,
-	"int64Neg":         neg,
-	"float32Add":       add,
-	"float32Neg":       neg,
-	"float64Add":       add,
-	"float64Neg":       neg,
+	"intAdd":           funcAdd,
+	"intNeg":           funcNeg,
+	"int64Add":         funcAdd,
+	"int64Neg":         funcNeg,
+	"float32Add":       funcAdd,
+	"float32Neg":       funcNeg,
+	"float64Add":       funcAdd,
+	"float64Neg":       funcNeg,
 	"k8sStatefulSetID": osHostnameSequenceID,
 }
 
@@ -87,7 +91,7 @@ func netResolveIP(s string) (ip string, err error) {
 	return
 }
 
-func add(a, b any) (any, error) {
+func funcAdd(a, b any) (any, error) {
 	switch a.(type) {
 	case bool:
 		return a.(bool) || b.(bool), nil
@@ -129,7 +133,7 @@ func add(a, b any) (any, error) {
 	return nil, errors.New("add: type not supported: " + reflect.TypeOf(a).String())
 }
 
-func neg(a any) (any, error) {
+func funcNeg(a any) (any, error) {
 	switch a := a.(type) {
 	case bool:
 		return !a, nil
@@ -165,6 +169,25 @@ func neg(a any) (any, error) {
 		// ___END_GEN:NEG___
 	}
 	return nil, errors.New("neg: type not supported: " + reflect.TypeOf(a).String())
+}
+
+func funcDict(items ...any) (map[string]any, error) {
+	if len(items)%2 != 0 {
+		return nil, errors.New("dict: odd number of items")
+	}
+	m := map[string]any{}
+	for i := 0; i < len(items); i += 2 {
+		k, ok := items[i].(string)
+		if !ok {
+			return nil, errors.New("dict: key is not a string")
+		}
+		m[k] = items[i+1]
+	}
+	return m, nil
+}
+
+func funcSlice(args ...any) []any {
+	return args
 }
 
 func osHostnameSequenceID() (id int, err error) {
