@@ -92,42 +92,42 @@ func netResolveIP(s string) (ip string, err error) {
 }
 
 func funcAdd(a, b any) (any, error) {
-	switch a.(type) {
+	switch a := a.(type) {
 	case bool:
-		return a.(bool) || b.(bool), nil
+		return a || b.(bool), nil
 		// ___BEG_GEN:ADD___
 	case uint8:
-		return a.(uint8) + b.(uint8), nil
+		return a + b.(uint8), nil
 	case uint16:
-		return a.(uint16) + b.(uint16), nil
+		return a + b.(uint16), nil
 	case uint32:
-		return a.(uint32) + b.(uint32), nil
+		return a + b.(uint32), nil
 	case uint64:
-		return a.(uint64) + b.(uint64), nil
+		return a + b.(uint64), nil
 	case int8:
-		return a.(int8) + b.(int8), nil
+		return a + b.(int8), nil
 	case int16:
-		return a.(int16) + b.(int16), nil
+		return a + b.(int16), nil
 	case int32:
-		return a.(int32) + b.(int32), nil
+		return a + b.(int32), nil
 	case int64:
-		return a.(int64) + b.(int64), nil
+		return a + b.(int64), nil
 	case float32:
-		return a.(float32) + b.(float32), nil
+		return a + b.(float32), nil
 	case float64:
-		return a.(float64) + b.(float64), nil
+		return a + b.(float64), nil
 	case complex64:
-		return a.(complex64) + b.(complex64), nil
+		return a + b.(complex64), nil
 	case complex128:
-		return a.(complex128) + b.(complex128), nil
+		return a + b.(complex128), nil
 	case int:
-		return a.(int) + b.(int), nil
+		return a + b.(int), nil
 	case uint:
-		return a.(uint) + b.(uint), nil
+		return a + b.(uint), nil
 	case string:
-		return a.(string) + b.(string), nil
+		return a + b.(string), nil
 	case uintptr:
-		return a.(uintptr) + b.(uintptr), nil
+		return a + b.(uintptr), nil
 		// ___END_GEN:ADD___
 	}
 	return nil, errors.New("add: type not supported: " + reflect.TypeOf(a).String())

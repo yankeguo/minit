@@ -60,7 +60,7 @@ content = load()
 
 content = inject(content, 'add', [
     f"""case {t}:
-        return a.({t}) + b.({t}), nil""" for t in with_add
+        return a + b.({t}), nil""" for t in with_add
 ])
 
 content = inject(content, 'neg', [
