@@ -24,7 +24,7 @@ import (
 )
 
 var (
-	GitHash = "UNKNOWN"
+	AppVersion = "unknown"
 )
 
 const (
@@ -108,7 +108,7 @@ func main() {
 
 	exem := mexec.NewManager()
 
-	log.Print("starting (#" + GitHash + ")")
+	log.Print("starting (" + AppVersion + ")")
 
 	// run through setups
 	rg.Must0(msetups.Setup(log))

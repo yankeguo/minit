@@ -57,11 +57,13 @@ jobs:
 
       - name: docker-build-and-push
         id: build-and-push
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: .
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            VERSION=${{github.ref_name}}@${{github.sha}}
           pull: true
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}

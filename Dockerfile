@@ -1,10 +1,19 @@
-FROM golang:1.21 AS builder
-ENV CGO_ENABLED 0
+ARG VERSION="unknown"
+
+FROM golang:1.22 AS builder
+
 ARG VERSION
+
+ENV CGO_ENABLED="0"
+
 WORKDIR /go/src/app
+
 ADD . .
-RUN go build -ldflags="-X main.GitHash=$(git rev-parse --short HEAD)" -o /minit
+
+RUN go build -ldflags="-X main.AppVersion=${VERSION}" -o /minit
 
 FROM busybox
+
 COPY --from=builder /minit /minit
+
 ENTRYPOINT ["/minit"]
