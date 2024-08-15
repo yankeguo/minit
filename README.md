@@ -6,7 +6,7 @@
 
 The missing `init` daemon for container
 
-[简体中文](README.zh.md)
+[中文文档](README.zh.md)
 
 ## 1. Installation
 
