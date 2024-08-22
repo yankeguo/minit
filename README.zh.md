@@ -122,9 +122,7 @@ cron: $MY_SCHEDULE
 
 ## 日志文件
 
-`minit` 会把每个单元的日志记录在 `/var/log/minit` 文件夹内，使用环境变量 `MINIT_LOG_DIR` 来修改这个目录
-
-设置 `MINIT_LOG_DIR=none` 禁用日志文件功能，同时缩减内存使用量，优化标准输出性能
+默认情况下，`minit` 会将所有进程的标准输出和标准错误打印出来，可以通过环境变量 `MINIT_LOG_DIR` 来指定日志目录，比如 `/var/log/minit`
 
 ## 日志字符集转换
 

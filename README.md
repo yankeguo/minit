@@ -213,11 +213,9 @@ command:
 
 **Log Files**
 
-`minit` write console logs of every command unit into `/var/log/minit`
+By default `minit` only streams console logs of every command unit into it's own stdout/stderr.
 
-This directory can be overridden by environment `MINIT_LOG_DIR`
-
-Set `MINIT_LOG_DIR=none` to disable file logging and optimize performance of `minit`
+Set `MINIT_LOG_DIR` to enable file logging, for example: `MINIT_LOG_DIR=/var/log/minit`
 
 **Console Encoding**
 
