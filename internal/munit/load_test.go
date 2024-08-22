@@ -15,8 +15,8 @@ func TestLoad(t *testing.T) {
 	}
 
 	units, skipped, err := Load(LoadOptions{
-		Dir: "testdata",
-		Env: m,
+		Dirs: []string{"testdata"},
+		Env:  m,
 	})
 
 	require.NoError(t, err)
@@ -133,4 +133,9 @@ func TestDupOrMakeMap(t *testing.T) {
 	m1a["c"] = "d"
 	require.Equal(t, "d", m1a["c"])
 	require.Equal(t, "", m1b["c"])
+}
+
+func TestParseUnitDirPattern(t *testing.T) {
+	require.Equal(t, []string{"testdata/a", "testdata/b", "testdata/c"}, ParseUnitDirPattern("testdata/a:testdata/b:testdata/c"))
+	require.Equal(t, []string{"testdata/a", "testdata/b", "testdata/c"}, ParseUnitDirPattern("::none:  testdata/a:testdata/b  :testdata/c:/sys/not-possible"))
 }

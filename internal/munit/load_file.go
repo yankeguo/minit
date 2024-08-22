@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -54,5 +55,38 @@ func LoadDir(dir string) (units []Unit, err error) {
 			units = append(units, _units...)
 		}
 	}
+	return
+}
+
+const (
+	unitDirNone = "none"
+)
+
+func ParseUnitDirPattern(pattern string) (dirs []string) {
+outerLoop:
+	for _, dir := range strings.Split(pattern, ":") {
+		dir = strings.TrimSpace(dir)
+
+		if dir == "" {
+			continue
+		}
+
+		if dir == unitDirNone {
+			continue
+		}
+
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			continue
+		}
+
+		for _, existed := range dirs {
+			if existed == dir {
+				continue outerLoop
+			}
+		}
+
+		dirs = append(dirs, dir)
+	}
+
 	return
 }

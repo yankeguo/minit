@@ -83,18 +83,6 @@ func main() {
 	// unit dir, be careful, empty string should be treated as current directory
 	envStr("MINIT_UNIT_DIR", &optUnitDir)
 
-	var unitDirs []string
-
-	for _, _dir := range strings.Split(optUnitDir, ":") {
-		dir := strings.TrimSpace(_dir)
-
-		if mkdirUnlessNone(&dir); dir == dirNone {
-			continue
-		}
-
-		unitDirs = append(unitDirs, dir)
-	}
-
 	// log dir
 	envStr("MINIT_LOG_DIR", &optLogDir)
 	mkdirUnlessNone(&optLogDir)
@@ -131,7 +119,7 @@ func main() {
 			munit.LoadOptions{
 				Args: os.Args[1:],
 				Env:  menv.Environ(),
-				Dirs: unitDirs,
+				Dirs: munit.ParseUnitDirPattern(optUnitDir),
 			},
 		),
 	)
