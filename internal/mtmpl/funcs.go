@@ -18,6 +18,9 @@ var Funcs = map[string]any{
 	"netResolveIP":         netResolveIP,
 	"osHostname":           os.Hostname,
 	"osHostnameSequenceID": osHostnameSequenceID,
+	"osReadDir":            os.ReadDir,
+	"osReadFile":           os.ReadFile,
+	"osReadFileString":     osReadFileString,
 	"osUserCacheDir":       os.UserCacheDir,
 	"osUserConfigDir":      os.UserConfigDir,
 	"osUserHomeDir":        os.UserHomeDir,
@@ -62,7 +65,7 @@ var Funcs = map[string]any{
 	"strconvFormatInt":     strconv.FormatInt,
 	"strconvFormatUint":    strconv.FormatUint,
 	"strconvFormatFloat":   strconv.FormatFloat,
-	"strconvAoti":          strconv.Atoi,
+	"strconvAtoi":          strconv.Atoi,
 	"strconvItoa":          strconv.Itoa,
 
 	"add":   funcAdd,
@@ -204,4 +207,9 @@ func osHostnameSequenceID() (id int, err error) {
 	}
 	id, err = strconv.Atoi(splits[len(splits)-1])
 	return
+}
+
+func osReadFileString(path string) (string, error) {
+	buf, err := os.ReadFile(path)
+	return string(buf), err
 }
