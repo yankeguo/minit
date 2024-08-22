@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sort"
 
 	"gopkg.in/yaml.v3"
 )
@@ -44,6 +45,7 @@ func LoadDir(dir string) (units []Unit, err error) {
 		if files, err = filepath.Glob(filepath.Join(dir, ext)); err != nil {
 			return
 		}
+		sort.Strings(files)
 		for _, file := range files {
 			var _units []Unit
 			if _units, err = LoadFile(file); err != nil {

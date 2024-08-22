@@ -38,7 +38,7 @@ ADD my-service.yml /etc/minit.d/my-service.yml
 
 Add Unit `YAML` files to `/etc/minit.d`
 
-Override default directory by environment variable `MINIT_UNIT_DIR`
+Override default directory by environment variable `MINIT_UNIT_DIR`, multiple directories are supported by separating with `:`
 
 Use `---` to separate multiple units in single `YAML` file
 

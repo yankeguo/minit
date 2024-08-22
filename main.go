@@ -68,26 +68,39 @@ func main() {
 
 	var (
 		optPprofPort = ""
-
 		optUnitDir   = "/etc/minit.d"
 		optLogDir    = dirNone
 		optQuickExit bool
 	)
 
-	envStr("MINIT_PPROF_PORT", &optPprofPort)
-
-	envStr("MINIT_UNIT_DIR", &optUnitDir)
-	envStr("MINIT_LOG_DIR", &optLogDir)
-	envBool("MINIT_QUICK_EXIT", &optQuickExit)
-
-	if optPprofPort != "" {
+	// pprof
+	if envStr("MINIT_PPROF_PORT", &optPprofPort); optPprofPort != "" {
 		go func() {
 			_ = http.ListenAndServe(":"+optPprofPort, nil)
 		}()
 	}
 
-	mkdirUnlessNone(&optUnitDir)
+	// unit dir, be careful, empty string should be treated as current directory
+	envStr("MINIT_UNIT_DIR", &optUnitDir)
+
+	var unitDirs []string
+
+	for _, _dir := range strings.Split(optUnitDir, ":") {
+		dir := strings.TrimSpace(_dir)
+
+		if mkdirUnlessNone(&dir); dir == dirNone {
+			continue
+		}
+
+		unitDirs = append(unitDirs, dir)
+	}
+
+	// log dir
+	envStr("MINIT_LOG_DIR", &optLogDir)
 	mkdirUnlessNone(&optLogDir)
+
+	// quick exit
+	envBool("MINIT_QUICK_EXIT", &optQuickExit)
 
 	createLogger := func(name string, pfx string) (mlog.ProcLogger, error) {
 		var rfo *mlog.RotatingFileOptions
@@ -118,7 +131,7 @@ func main() {
 			munit.LoadOptions{
 				Args: os.Args[1:],
 				Env:  menv.Environ(),
-				Dir:  optUnitDir,
+				Dirs: unitDirs,
 			},
 		),
 	)

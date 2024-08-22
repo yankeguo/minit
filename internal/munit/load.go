@@ -23,7 +23,7 @@ const (
 type LoadOptions struct {
 	Args []string
 	Env  map[string]string
-	Dir  string
+	Dirs []string
 }
 
 func Load(opts LoadOptions) (output []Unit, skipped []Unit, err error) {
@@ -31,8 +31,8 @@ func Load(opts LoadOptions) (output []Unit, skipped []Unit, err error) {
 
 	var units []Unit
 
-	if opts.Dir != "" {
-		units = append(units, rg.Must(LoadDir(opts.Dir))...)
+	for _, dir := range opts.Dirs {
+		units = append(units, rg.Must(LoadDir(dir))...)
 	}
 
 	if len(opts.Args) > 0 {
