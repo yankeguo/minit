@@ -36,7 +36,6 @@ func mkdirUnlessNone(dir *string) {
 		return
 	}
 	if err := os.MkdirAll(*dir, 0755); err != nil {
-		fmt.Fprintf(os.Stderr, "failed to create dir %s: %s\n", *dir, err.Error())
 		*dir = dirNone
 	}
 }
@@ -71,7 +70,7 @@ func main() {
 		optPprofPort = ""
 
 		optUnitDir   = "/etc/minit.d"
-		optLogDir    = "/var/log/minit"
+		optLogDir    = dirNone
 		optQuickExit bool
 	)
 
