@@ -31,8 +31,8 @@ func setupTHP(logger mlog.ProcLogger) (err error) {
 	}
 	logger.Printf("current THP configuration: %s", bytes.TrimSpace(buf))
 	logger.Printf("writing THP configuration: %s", val)
-	if err = os.WriteFile(controlFileTHP, []byte(val), 644); err != nil {
-		err = fmt.Errorf("fialed writting THP configuration %s: %s", controlFileTHP, err.Error())
+	if err = os.WriteFile(controlFileTHP, []byte(val), 0644); err != nil {
+		err = fmt.Errorf("failed writing THP configuration %s: %s", controlFileTHP, err.Error())
 		return
 	}
 	if buf, err = os.ReadFile(controlFileTHP); err != nil {

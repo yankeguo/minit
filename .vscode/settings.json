@@ -2,6 +2,7 @@
   "cSpell.words": [
     "charsets",
     "exem",
+    "hugepage",
     "injectenv",
     "interp",
     "menv",
@@ -15,6 +16,7 @@
     "munit",
     "shellquote",
     "simplifiedchinese",
-    "stretchr"
+    "stretchr",
+    "webdav"
   ]
 }

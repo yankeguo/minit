@@ -19,7 +19,6 @@ func init() {
 }
 
 func setupZombies(log mlog.ProcLogger) (err error) {
-	// 如果自己不是 PID 1，则不负责清理僵尸进程
 	if os.Getpid() != 1 {
 		log.Print("minit is not running as PID 1, skipping cleaning up zombies")
 		return
@@ -31,11 +30,9 @@ func setupZombies(log mlog.ProcLogger) (err error) {
 }
 
 func runZombieCleaner(log mlog.ProcLogger) {
-	// SIGCHLD 触发
 	chSig := make(chan os.Signal, 10)
 	signal.Notify(chSig, syscall.SIGCHLD)
 
-	// 周期触发
 	tk := time.NewTicker(time.Second * 30)
 
 	var chT <-chan time.Time
@@ -60,19 +57,19 @@ func runZombieCleaner(log mlog.ProcLogger) {
 func cleanZombieProcesses(log mlog.ProcLogger) {
 	var (
 		err  error
-		pids []int
+		pIDs []int
 	)
-	if pids, err = findZombieProcesses(); err != nil {
+	if pIDs, err = findZombieProcesses(); err != nil {
 		log.Print("failed checking zombies:", err.Error())
 		return
 	}
 
-	for _, pid := range pids {
-		go waitZombieProcess(log, pid)
+	for _, pID := range pIDs {
+		go waitZombieProcess(log, pID)
 	}
 }
 
-func findZombieProcesses() (pids []int, err error) {
+func findZombieProcesses() (pIDs []int, err error) {
 	var f *os.File
 	if f, err = os.Open("/proc"); err != nil {
 		return
@@ -86,25 +83,25 @@ func findZombieProcesses() (pids []int, err error) {
 		if dirname[0] < '0' || dirname[0] > '9' {
 			continue
 		}
-		var pid int
-		if pid, err = strconv.Atoi(dirname); err != nil {
+		var pID int
+		if pID, err = strconv.Atoi(dirname); err != nil {
 			return
 		}
 		var zombie bool
-		if zombie, err = checkProcessIsZombie(pid); err != nil {
+		if zombie, err = checkProcessIsZombie(pID); err != nil {
 			err = nil
 			continue
 		}
 		if zombie {
-			pids = append(pids, pid)
+			pIDs = append(pIDs, pID)
 		}
 	}
 	return
 }
 
-func checkProcessIsZombie(pid int) (zombie bool, err error) {
+func checkProcessIsZombie(pID int) (zombie bool, err error) {
 	var buf []byte
-	if buf, err = os.ReadFile(fmt.Sprintf("/proc/%d/stat", pid)); err != nil {
+	if buf, err = os.ReadFile(fmt.Sprintf("/proc/%d/stat", pID)); err != nil {
 		return
 	}
 	zombie = checkProcStatIsZombie(buf)
@@ -127,17 +124,17 @@ func checkProcStatIsZombie(buf []byte) bool {
 	return buf[0] == 'Z'
 }
 
-func waitZombieProcess(log mlog.ProcLogger, pid int) {
+func waitZombieProcess(log mlog.ProcLogger, pID int) {
 	var err error
 	var ws syscall.WaitStatus
 	for {
-		_, err = syscall.Wait4(pid, &ws, 0, nil)
+		_, err = syscall.Wait4(pID, &ws, 0, nil)
 		for syscall.EINTR == err {
-			_, err = syscall.Wait4(pid, &ws, 0, nil)
+			_, err = syscall.Wait4(pID, &ws, 0, nil)
 		}
 		if syscall.ECHILD == err {
 			break
 		}
 	}
-	log.Printf("zombie cleaned %d", pid)
+	log.Printf("zombie cleaned %d", pID)
 }
