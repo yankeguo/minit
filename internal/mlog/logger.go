@@ -117,3 +117,25 @@ func (pl *procLogger) Out() Output {
 func (pl *procLogger) Err() Output {
 	return pl.err
 }
+
+const (
+	dirNone = "none"
+)
+
+func CreateSimpleLogger(dir string, name string, pfx string) (ProcLogger, error) {
+	var fo *RotatingFileOptions
+
+	if dir != "" && dir != dirNone {
+		if err := os.MkdirAll(dir, 0755); err == nil {
+			fo = &RotatingFileOptions{
+				Dir:      dir,
+				Filename: name,
+			}
+		}
+	}
+
+	return NewProcLogger(ProcLoggerOptions{
+		ConsolePrefix: pfx,
+		FileOptions:   fo,
+	})
+}

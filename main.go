@@ -27,19 +27,6 @@ var (
 	AppVersion = "unknown"
 )
 
-const (
-	dirNone = "none"
-)
-
-func mkdirUnlessNone(dir *string) {
-	if *dir == dirNone {
-		return
-	}
-	if err := os.MkdirAll(*dir, 0755); err != nil {
-		*dir = dirNone
-	}
-}
-
 func exit(err *error) {
 	if *err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%s: exited with error: %s\n", "minit", (*err).Error())
@@ -69,7 +56,7 @@ func main() {
 	var (
 		optPprofPort = ""
 		optUnitDir   = "/etc/minit.d"
-		optLogDir    = dirNone
+		optLogDir    = ""
 		optQuickExit bool
 	)
 
@@ -80,31 +67,11 @@ func main() {
 		}()
 	}
 
-	// unit dir, be careful, empty string should be treated as current directory
 	envStr("MINIT_UNIT_DIR", &optUnitDir)
-
-	// log dir
 	envStr("MINIT_LOG_DIR", &optLogDir)
-	mkdirUnlessNone(&optLogDir)
-
-	// quick exit
 	envBool("MINIT_QUICK_EXIT", &optQuickExit)
 
-	createLogger := func(name string, pfx string) (mlog.ProcLogger, error) {
-		var rfo *mlog.RotatingFileOptions
-		if optLogDir != dirNone {
-			rfo = &mlog.RotatingFileOptions{
-				Dir:      optLogDir,
-				Filename: name,
-			}
-		}
-		return mlog.NewProcLogger(mlog.ProcLoggerOptions{
-			ConsolePrefix: pfx,
-			FileOptions:   rfo,
-		})
-	}
-
-	log := rg.Must(createLogger("minit", "minit: "))
+	log := rg.Must(mlog.CreateSimpleLogger(optLogDir, "minit", "minit: "))
 
 	exem := mexec.NewManager()
 
@@ -144,7 +111,7 @@ func main() {
 				rg.Must(mrunners.Create(mrunners.RunnerOptions{
 					Unit:   unit,
 					Exec:   exem,
-					Logger: rg.Must(createLogger(unit.Name, "")),
+					Logger: rg.Must(mlog.CreateSimpleLogger(optLogDir, unit.Name, "")),
 				})),
 			)
 		}
