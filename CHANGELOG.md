@@ -2,6 +2,19 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v1.15.1 - 2024-08-22
+#### Features
+- support multiple unit directories (#19) - (edbaa28) - GUO YANKE
+#### Miscellaneous Chores
+- remove logging for minit started and minit exited - (76459ad) - GUO YANKE
+- remove log for process starting - (89088ea) - GUO YANKE
+- remove log for success execution - (81a4691) - GUO YANKE
+#### Refactoring
+- cleanup logic for MINIT_LOG_DIR parsing (#19) - (2292998) - GUO YANKE
+- cleanup logic for MINIT_UNIT_DIR parsing (#19) - (c3a6d4c) - GUO YANKE
+
+- - -
+
 ## v1.15.0 - 2024-08-22
 #### Documentation
 - update README.md [skip ci] - (7135b77) - GUO YANKE
