@@ -158,8 +158,6 @@ func (m *manager) Execute(opts ExecuteOptions) (err error) {
 	}
 	defer done()
 
-	opts.Logger.Printf("minit: %s: process started", opts.Name)
-
 	// streaming
 	go opts.Logger.Out().ReadFrom(outPipe)
 	go opts.Logger.Err().ReadFrom(errPipe)
