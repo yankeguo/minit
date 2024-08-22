@@ -2,6 +2,17 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v1.15.2 - 2024-08-22
+#### Bug Fixes
+- **(mtmpl)** update functions - (d009bff) - GUO YANKE
+#### Features
+- **(mtmpl)** add functions - (b3b2e07) - GUO YANKE
+- **(mtmpl)** add functions - (b4793bd) - GUO YANKE
+#### Miscellaneous Chores
+- **(mtmpl)** remove logging for functions generation - (796ddab) - GUO YANKE
+
+- - -
+
 ## v1.15.1 - 2024-08-22
 #### Features
 - support multiple unit directories (#19) - (edbaa28) - GUO YANKE
