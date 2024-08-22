@@ -15,12 +15,12 @@ import (
 // Funcs provided funcs for render
 var Funcs = map[string]any{
 	"netResolveIPAddr":     net.ResolveIPAddr,
-	"netResolveIP":         netResolveIP,
+	"netResolveIP":         funcNetResolveIP,
 	"osHostname":           os.Hostname,
-	"osHostnameSequenceID": osHostnameSequenceID,
+	"osHostnameSequenceID": funcOsHostnameSequenceID,
 	"osReadDir":            os.ReadDir,
 	"osReadFile":           os.ReadFile,
-	"osReadFileString":     osReadFileString,
+	"osReadFileString":     funcOsReadFileString,
 	"osUserCacheDir":       os.UserCacheDir,
 	"osUserConfigDir":      os.UserConfigDir,
 	"osUserHomeDir":        os.UserHomeDir,
@@ -73,6 +73,10 @@ var Funcs = map[string]any{
 	"dict":  funcDict,
 	"slice": funcSlice,
 
+	"int64":   funcInt64,
+	"uint64":  funcUint64,
+	"float64": funcFloat64,
+
 	// deprecated
 	"intAdd":           funcAdd,
 	"intNeg":           funcNeg,
@@ -82,10 +86,10 @@ var Funcs = map[string]any{
 	"float32Neg":       funcNeg,
 	"float64Add":       funcAdd,
 	"float64Neg":       funcNeg,
-	"k8sStatefulSetID": osHostnameSequenceID,
+	"k8sStatefulSetID": funcOsHostnameSequenceID,
 }
 
-func netResolveIP(s string) (ip string, err error) {
+func funcNetResolveIP(s string) (ip string, err error) {
 	var addr *net.IPAddr
 	if addr, err = net.ResolveIPAddr("ip", s); err != nil {
 		return
@@ -119,14 +123,14 @@ func funcAdd(a, b any) (any, error) {
 		return a + b.(float32), nil
 	case float64:
 		return a + b.(float64), nil
-	case complex64:
-		return a + b.(complex64), nil
-	case complex128:
-		return a + b.(complex128), nil
 	case int:
 		return a + b.(int), nil
 	case uint:
 		return a + b.(uint), nil
+	case complex64:
+		return a + b.(complex64), nil
+	case complex128:
+		return a + b.(complex128), nil
 	case string:
 		return a + b.(string), nil
 	case uintptr:
@@ -161,13 +165,13 @@ func funcNeg(a any) (any, error) {
 		return -a, nil
 	case float64:
 		return -a, nil
-	case complex64:
-		return -a, nil
-	case complex128:
-		return -a, nil
 	case int:
 		return -a, nil
 	case uint:
+		return -a, nil
+	case complex64:
+		return -a, nil
+	case complex128:
 		return -a, nil
 		// ___END_GEN:NEG___
 	}
@@ -193,7 +197,7 @@ func funcSlice(args ...any) []any {
 	return args
 }
 
-func osHostnameSequenceID() (id int, err error) {
+func funcOsHostnameSequenceID() (id int, err error) {
 	var hostname string
 	if hostname = os.Getenv("HOSTNAME"); hostname == "" {
 		if hostname, err = os.Hostname(); err != nil {
@@ -209,7 +213,139 @@ func osHostnameSequenceID() (id int, err error) {
 	return
 }
 
-func osReadFileString(path string) (string, error) {
+func funcOsReadFileString(path string) (string, error) {
 	buf, err := os.ReadFile(path)
 	return string(buf), err
+}
+
+func funcInt64(v any) (int64, error) {
+	switch v := v.(type) {
+	case bool:
+		if v {
+			return 1, nil
+		} else {
+			return 0, nil
+		}
+	case string:
+		return strconv.ParseInt(v, 10, 64)
+	case complex64:
+		return int64(real(v)), nil
+	case complex128:
+		return int64(real(v)), nil
+		// __BEG_GEN:INT64__
+	case uint8:
+		return int64(v), nil
+	case uint16:
+		return int64(v), nil
+	case uint32:
+		return int64(v), nil
+	case uint64:
+		return int64(v), nil
+	case int8:
+		return int64(v), nil
+	case int16:
+		return int64(v), nil
+	case int32:
+		return int64(v), nil
+	case int64:
+		return int64(v), nil
+	case float32:
+		return int64(v), nil
+	case float64:
+		return int64(v), nil
+	case int:
+		return int64(v), nil
+	case uint:
+		return int64(v), nil
+		// __END_GEN:INT64__
+	}
+	return 0, errors.New("int64: type not supported: " + reflect.TypeOf(v).String())
+}
+
+func funcUint64(v any) (uint64, error) {
+	switch v := v.(type) {
+	case bool:
+		if v {
+			return 1, nil
+		} else {
+			return 0, nil
+		}
+	case string:
+		return strconv.ParseUint(v, 10, 64)
+	case complex64:
+		return uint64(real(v)), nil
+	case complex128:
+		return uint64(real(v)), nil
+		// __BEG_GEN:UINT64__
+	case uint8:
+		return uint64(v), nil
+	case uint16:
+		return uint64(v), nil
+	case uint32:
+		return uint64(v), nil
+	case uint64:
+		return uint64(v), nil
+	case int8:
+		return uint64(v), nil
+	case int16:
+		return uint64(v), nil
+	case int32:
+		return uint64(v), nil
+	case int64:
+		return uint64(v), nil
+	case float32:
+		return uint64(v), nil
+	case float64:
+		return uint64(v), nil
+	case int:
+		return uint64(v), nil
+	case uint:
+		return uint64(v), nil
+		// __END_GEN:UINT64__
+	}
+	return 0, errors.New("uint64: type not supported: " + reflect.TypeOf(v).String())
+}
+
+func funcFloat64(v any) (float64, error) {
+	switch v := v.(type) {
+	case bool:
+		if v {
+			return 1, nil
+		} else {
+			return 0, nil
+		}
+	case string:
+		return strconv.ParseFloat(v, 64)
+	case complex64:
+		return float64(real(v)), nil
+	case complex128:
+		return real(v), nil
+		// __BEG_GEN:FLOAT64__
+	case uint8:
+		return float64(v), nil
+	case uint16:
+		return float64(v), nil
+	case uint32:
+		return float64(v), nil
+	case uint64:
+		return float64(v), nil
+	case int8:
+		return float64(v), nil
+	case int16:
+		return float64(v), nil
+	case int32:
+		return float64(v), nil
+	case int64:
+		return float64(v), nil
+	case float32:
+		return float64(v), nil
+	case float64:
+		return float64(v), nil
+	case int:
+		return float64(v), nil
+	case uint:
+		return float64(v), nil
+		// __END_GEN:FLOAT64__
+	}
+	return 0, errors.New("float64: type not supported: " + reflect.TypeOf(v).String())
 }

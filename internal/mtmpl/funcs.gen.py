@@ -35,8 +35,7 @@ def inject(content: str, key: str, lines: List[str]) -> str:
 
     return '\n'.join(all_lines)
 
-
-with_neg = [
+with_num  = [
     'uint8',
     'uint16',
     'uint32',
@@ -47,10 +46,13 @@ with_neg = [
     'int64',
     'float32',
     'float64',
-    'complex64',
-    'complex128',
     'int',
     'uint',
+]
+
+with_neg = with_num + [
+    'complex64',
+    'complex128',
 ]
 
 with_add = with_neg + ['string', 'uintptr']
@@ -66,6 +68,21 @@ content = inject(content, 'add', [
 content = inject(content, 'neg', [
     f"""case {t}:
         return -a, nil""" for t in with_neg
+])
+
+content = inject(content, 'int64', [
+    f"""case {t}:
+        return int64(v), nil""" for t in with_num
+])
+
+content = inject(content, 'uint64', [
+    f"""case {t}:
+        return uint64(v), nil""" for t in with_num
+])
+
+content = inject(content, 'float64', [
+    f"""case {t}:
+        return float64(v), nil""" for t in with_num
 ])
 
 save(content)

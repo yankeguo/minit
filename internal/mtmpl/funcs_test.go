@@ -47,3 +47,7 @@ func TestFuncSlice(t *testing.T) {
 	{{index (slice 1 2 3) (add 1 1)}}
 	`, nil)
 }
+
+func TestFuncFloat64(t *testing.T) {
+	doTestTemplate(t, `4`, `{{add (float64 (int64 3)) (float64 1)}}`, nil)
+}
