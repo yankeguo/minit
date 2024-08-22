@@ -5,6 +5,7 @@ import (
 	"net"
 	"os"
 	"os/user"
+	"path/filepath"
 	"reflect"
 	"strconv"
 	"strings"
@@ -14,6 +15,7 @@ import (
 
 // Funcs provided funcs for render
 var Funcs = map[string]any{
+	"filepathJoin":         filepath.Join,
 	"netResolveIPAddr":     net.ResolveIPAddr,
 	"netResolveIP":         funcNetResolveIP,
 	"osHostname":           os.Hostname,

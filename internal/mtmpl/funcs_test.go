@@ -51,3 +51,12 @@ func TestFuncSlice(t *testing.T) {
 func TestFuncFloat64(t *testing.T) {
 	doTestTemplate(t, `4`, `{{add (float64 (int64 3)) (float64 1)}}`, nil)
 }
+
+func TestFuncReadFile(t *testing.T) {
+	doTestTemplate(
+		t,
+		`worldb`,
+		`{{ osReadFileString (filepathJoin "testdata" "hello.txt") | stringsTrimSpace }}b`,
+		nil,
+	)
+}
