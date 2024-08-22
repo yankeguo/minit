@@ -28,12 +28,11 @@ var (
 )
 
 func exit(err *error) {
-	if *err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "%s: exited with error: %s\n", "minit", (*err).Error())
-		os.Exit(1)
-	} else {
-		_, _ = fmt.Fprintf(os.Stdout, "%s: exited\n", "minit")
+	if *err == nil {
+		return
 	}
+	_, _ = fmt.Fprintf(os.Stderr, "%s: exited with error: %s\n", "minit", (*err).Error())
+	os.Exit(1)
 }
 
 func envStr(key string, out *string) {
@@ -161,8 +160,6 @@ func main() {
 			wg.Done()
 		}(runner)
 	}
-
-	log.Printf("started")
 
 	// wait for signals
 	chSig := make(chan os.Signal, 1)
