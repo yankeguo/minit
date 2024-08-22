@@ -71,4 +71,4 @@ content = inject(content, 'neg', [
 save(content)
 
 subprocess.run(['go', 'fmt', os.path.join(
-    os.path.dirname(__file__), 'funcs.go')])
+    os.path.dirname(__file__), 'funcs.go')], stdout=subprocess.DEVNULL)
