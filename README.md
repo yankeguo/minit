@@ -105,7 +105,7 @@ files:
 - `/opt/demo.txt`
 
 ```text
-Hello, {{stringsToUpper .Evn.HOME}}
+Hello, {{stringsToUpper .Env.HOME}}
 ```
 
 Upon startup, `minit` will render file `/opt/demo.txt`
