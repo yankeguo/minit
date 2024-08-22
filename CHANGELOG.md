@@ -2,6 +2,18 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v1.15.0 - 2024-08-22
+#### Documentation
+- update README.md [skip ci] - (7135b77) - GUO YANKE
+- update README.md [skip ci] - (4f3b83f) - GUO YANKE
+- update SECURITY.md [skip ci] - (280db66) - GUO YANKE
+#### Features
+- no logging to local file by default (#18) - (3ebbb16) - GUO YANKE
+#### Miscellaneous Chores
+- fix typo - (68d189e) - GUO YANKE
+
+- - -
+
 ## v1.14.0 - 2024-08-21
 #### Documentation
 - update README.md [skip ci] - (6e46d8a) - GUO YANKE
