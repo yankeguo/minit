@@ -180,7 +180,6 @@ func (m *manager) Execute(opts ExecuteOptions) (err error) {
 
 	if checkSuccessCode(opts.SuccessCodes, code) {
 		err = nil
-		opts.Logger.Printf("minit: %s: exit code %d is in success_codes", opts.Name, code)
 		return
 	}
 
