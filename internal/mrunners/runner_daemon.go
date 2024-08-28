@@ -13,7 +13,6 @@ func init() {
 		defer rg.Guard(&err)
 		rg.Must0(opts.Unit.RequireCommand())
 
-		runner.Order = 40
 		runner.Long = true
 		runner.Action = &actionDaemon{RunnerOptions: opts}
 		return

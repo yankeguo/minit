@@ -7,7 +7,6 @@ import (
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
-	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -114,11 +113,6 @@ func main() {
 				})),
 			)
 		}
-
-		// sort runners
-		sort.Slice(runners, func(i, j int) bool {
-			return runners[i].Order < runners[j].Order
-		})
 
 		// split short runners and long runners
 		for _, runner := range runners {

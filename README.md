@@ -81,6 +81,36 @@ ENTRYPOINT ["/minit"]
 CMD ["redis-server", "/etc/redis.conf"]
 ```
 
+### 2.4 Unit Order
+
+For `render` and `once` units, `minit` will load them in a specific order
+
+**Source Order**
+
+- Units loaded from files
+- Units loaded from environment variables
+- Units loaded from command arguments
+
+**Type Order**
+
+- `render`
+- `once`
+
+**Order in Same Type**
+
+- Order in files
+- Order in environment variables
+
+**Override**
+
+Set field `order` to override default order.
+
+`order` is an integer, lower value will be loaded first.
+
+`order` with minus value will be loaded before default order.
+
+`order` with positive value will be loaded after default order.
+
 ## 3. Unit Types
 
 ### 3.1 Type: `render`

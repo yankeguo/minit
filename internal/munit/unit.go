@@ -33,6 +33,7 @@ type Unit struct {
 	Group    string `yaml:"group"`    // group of unit
 	Count    int    `yaml:"count"`    // replicas of unit
 	Critical bool   `yaml:"critical"` // if true, will halt the minit if unit failed
+	Order    int    `yaml:"order"`    // order of unit
 
 	// execution options, for 'once', 'daemon' and 'cron'
 	Dir          string            `yaml:"dir"`

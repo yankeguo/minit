@@ -12,7 +12,6 @@ func init() {
 		defer rg.Guard(&err)
 		rg.Must0(opts.Unit.RequireCommand())
 
-		runner.Order = 20
 		runner.Action = &actionOnce{RunnerOptions: opts}
 		return
 	})

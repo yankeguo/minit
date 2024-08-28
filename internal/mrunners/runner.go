@@ -13,7 +13,6 @@ type RunnerAction interface {
 
 // Runner is the struct of runner
 type Runner struct {
-	Order  int
 	Long   bool
 	Action RunnerAction
 }

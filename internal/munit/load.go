@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
 
 	"github.com/yankeguo/rg"
@@ -29,27 +30,24 @@ type LoadOptions struct {
 func Load(opts LoadOptions) (output []Unit, skipped []Unit, err error) {
 	defer rg.Guard(&err)
 
+	// create a filter
+	filter := NewFilter("", "")
+
+	if opts.Env != nil {
+		filter = NewFilter(
+			opts.Env["MINIT_ENABLE"],
+			opts.Env["MINIT_DISABLE"],
+		)
+	}
+
+	// load units in order of dirs, env, args
 	var units []Unit
 
 	for _, dir := range opts.Dirs {
 		units = append(units, rg.Must(LoadDir(dir))...)
 	}
 
-	if len(opts.Args) > 0 {
-		if unit, ok := rg.Must2(LoadArgs(opts.Args)); ok {
-			units = append(units, unit)
-		}
-	}
-
-	filter := NewFilter("", "")
-
 	if opts.Env != nil {
-
-		filter = NewFilter(
-			opts.Env["MINIT_ENABLE"],
-			opts.Env["MINIT_DISABLE"],
-		)
-
 		if unit, ok := rg.Must2(LoadEnv(opts.Env)); ok {
 			units = append(units, unit)
 		}
@@ -60,6 +58,14 @@ func Load(opts LoadOptions) (output []Unit, skipped []Unit, err error) {
 			}
 		}
 	}
+
+	if len(opts.Args) > 0 {
+		if unit, ok := rg.Must2(LoadArgs(opts.Args)); ok {
+			units = append(units, unit)
+		}
+	}
+
+	sortUnits(units)
 
 	// check duplicated name
 	names := map[string]struct{}{}
@@ -141,4 +147,15 @@ func duplicateMap[T comparable, U any](m *map[T]U) {
 		}
 	}
 	*m = nm
+}
+
+func sortUnits(units []Unit) {
+	// render first
+	sort.SliceStable(units, func(i, j int) bool {
+		return units[i].Kind == KindRender && units[j].Kind != KindRender
+	})
+	// then by order
+	sort.SliceStable(units, func(i, j int) bool {
+		return units[i].Order < units[j].Order
+	})
 }

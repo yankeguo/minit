@@ -15,7 +15,6 @@ func init() {
 		rg.Must0(opts.Unit.RequireCron())
 		rg.Must(cron.ParseStandard(opts.Unit.Cron))
 
-		runner.Order = 30
 		runner.Long = true
 		runner.Action = &actionCron{RunnerOptions: opts}
 		return

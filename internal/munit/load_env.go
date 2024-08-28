@@ -153,6 +153,9 @@ func LoadEnvWithInfix(env map[string]string, infix string) (unit Unit, ok bool, 
 		}
 	}
 
+	// order
+	unit.Order, _ = strconv.Atoi(env[EnvPrefixUnit+infix+"_ORDER"])
+
 	ok = true
 
 	return
@@ -214,6 +217,8 @@ func LoadEnv(env map[string]string) (unit Unit, ok bool, err error) {
 		Dir:       strings.TrimSpace(env["MINIT_MAIN_DIR"]),
 		Charset:   strings.TrimSpace(env["MINIT_MAIN_CHARSET"]),
 	}
+
+	unit.Order, _ = strconv.Atoi(env["MINIT_MAIN_ORDER"])
 
 	if unit.Kind == KindOnce {
 		if nb, err := strconv.ParseBool(strings.TrimSpace(env["MINIT_MAIN_BLOCKING"])); err == nil && !nb {

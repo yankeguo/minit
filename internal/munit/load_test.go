@@ -139,3 +139,70 @@ func TestParseUnitDirPattern(t *testing.T) {
 	require.Equal(t, []string{"testdata/a", "testdata/b", "testdata/c"}, ParseUnitDirPattern("testdata/a:testdata/b:testdata/c"))
 	require.Equal(t, []string{"testdata/a", "testdata/b", "testdata/c"}, ParseUnitDirPattern("::none:  testdata/a:testdata/b  :testdata/c:/sys/not-possible"))
 }
+
+func TestSortUnits(t *testing.T) {
+
+	units := []Unit{
+		{
+			Name: "a",
+			Kind: KindOnce,
+		},
+		{
+			Name: "b",
+			Kind: KindRender,
+		},
+		{
+			Name: "c",
+			Kind: KindDaemon,
+		},
+		{
+			Name: "d",
+			Kind: KindRender,
+		},
+	}
+
+	unitNames := func() []string {
+		var names []string
+		for _, u := range units {
+			names = append(names, u.Name)
+		}
+		return names
+	}
+
+	sortUnits(units)
+
+	require.Equal(t, []string{"b", "d", "a", "c"}, unitNames())
+
+	units = []Unit{
+		{
+			Name: "a",
+			Kind: KindOnce,
+		},
+		{
+			Name: "b",
+			Kind: KindRender,
+		},
+		{
+			Name:  "c",
+			Kind:  KindDaemon,
+			Order: 3,
+		},
+		{
+			Name: "d",
+			Kind: KindRender,
+		},
+		{
+			Name:  "e",
+			Kind:  KindOnce,
+			Order: -3,
+		},
+		{
+			Name:  "f",
+			Kind:  KindOnce,
+			Order: -2,
+		},
+	}
+
+	sortUnits(units)
+	require.Equal(t, []string{"e", "f", "b", "d", "a", "c"}, unitNames())
+}

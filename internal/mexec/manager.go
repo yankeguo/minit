@@ -8,7 +8,6 @@ import (
 	"os/exec"
 	"strings"
 	"sync"
-	"syscall"
 
 	"github.com/yankeguo/minit/internal/menv"
 	"github.com/yankeguo/minit/internal/mlog"
@@ -128,9 +127,7 @@ func (m *manager) Execute(opts ExecuteOptions) (err error) {
 		cmd.Env = append(cmd.Env, k+"="+v)
 	}
 	cmd.Dir = opts.Dir
-	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Setpgid: true,
-	}
+	setSysProcAttr(cmd)
 
 	// build out / err pipe
 	if outPipe, err = cmd.StdoutPipe(); err != nil {
