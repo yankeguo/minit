@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v1.16.1 - 2025-07-16
+#### Miscellaneous Chores
+- **(deps)** update Go version to 1.23 and dependencies - (26a568d) - GUO YANKE
+
+- - -
+
 ## v1.16.0 - 2024-09-03
 #### Features
 - add order field to units and create runners by that order (#20) - (a346726) - GUO YANKE
