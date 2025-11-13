@@ -34,10 +34,15 @@ type Manager interface {
 	Execute(opts ExecuteOptions) (err error)
 }
 
+// manager implements Manager interface with thread-safe process tracking
+// Concurrency strategy:
+// - managedPIDLock protects all access to managedPIDs map
+// - StartCommand and Signal both acquire lock to ensure atomicity
+// - charsets map is read-only after initialization, no locking needed
 type manager struct {
-	managedPIDs    map[int]struct{}
-	managedPIDLock sync.Locker
-	charsets       map[string]encoding.Encoding
+	managedPIDs    map[int]struct{}             // Protected by managedPIDLock
+	managedPIDLock sync.Locker                  // Protects managedPIDs map
+	charsets       map[string]encoding.Encoding // Read-only after init
 }
 
 func NewManager() Manager {
@@ -73,6 +78,8 @@ func (m *manager) Signal(sig os.Signal) {
 	m.managedPIDLock.Lock()
 	defer m.managedPIDLock.Unlock()
 
+	// Broadcast signal to all managed processes atomically
+	// Lock ensures no processes are added/removed during broadcast
 	for pid := range m.managedPIDs {
 		if process, _ := os.FindProcess(pid); process != nil {
 			_ = process.Signal(sig)

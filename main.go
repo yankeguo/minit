@@ -58,10 +58,13 @@ func main() {
 		optQuickExit bool
 	)
 
-	// pprof
+	// pprof debugging server (non-critical)
 	if envStr("MINIT_PPROF_PORT", &optPprofPort); optPprofPort != "" {
 		go func() {
-			_ = http.ListenAndServe(":"+optPprofPort, nil)
+			if pprofErr := http.ListenAndServe(":"+optPprofPort, nil); pprofErr != nil {
+				// Log pprof server errors to stderr (logger not yet initialized)
+				fmt.Fprintf(os.Stderr, "minit: pprof server on port %s failed: %s\n", optPprofPort, pprofErr.Error())
+			}
 		}()
 	}
 
@@ -172,15 +175,20 @@ func main() {
 		sig = syscall.SIGTERM
 	}
 
-	// shutdown context
+	// Graceful shutdown sequence:
+	// 1. Cancel context to signal all long runners to stop
 	cancel()
 
-	// delay 3 seconds
+	// 2. Wait 3 seconds for graceful shutdown
+	//    This gives daemons and cron jobs time to complete their current operations
+	//    and clean up resources before forceful termination
 	time.Sleep(time.Second * 3)
 
-	// broadcast signals
+	// 3. Broadcast signal to all managed child processes
+	//    This ensures any remaining processes are notified to terminate
 	exem.Signal(sig)
 
-	// wait for long runners
+	// 4. Wait for all long runner goroutines to complete
+	//    This ensures proper cleanup and prevents resource leaks
 	wg.Wait()
 }

@@ -57,21 +57,21 @@ type Unit struct {
 
 func (u Unit) RequireCommand() error {
 	if len(u.Command) == 0 {
-		return errors.New("missing unit field: command")
+		return errors.New("missing unit field 'command': unit must specify at least one command")
 	}
 	return nil
 }
 
 func (u Unit) RequireFiles() error {
 	if len(u.Files) == 0 {
-		return errors.New("missing unit field: command")
+		return errors.New("missing unit field 'files': render unit must specify at least one file pattern")
 	}
 	return nil
 }
 
 func (u Unit) RequireCron() error {
 	if len(u.Cron) == 0 {
-		return errors.New("missing unit field: cron")
+		return errors.New("missing unit field 'cron': cron unit must specify a valid cron expression")
 	}
 	return nil
 }

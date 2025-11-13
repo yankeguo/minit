@@ -2,6 +2,7 @@ package mrunners
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/robfig/cron/v3"
 	"github.com/yankeguo/minit/internal/munit"
@@ -13,7 +14,12 @@ func init() {
 		defer rg.Guard(&err)
 		rg.Must0(opts.Unit.RequireCommand())
 		rg.Must0(opts.Unit.RequireCron())
-		rg.Must(cron.ParseStandard(opts.Unit.Cron))
+
+		// Validate cron expression with detailed error context
+		if _, parseErr := cron.ParseStandard(opts.Unit.Cron); parseErr != nil {
+			err = fmt.Errorf("cron unit '%s': invalid cron expression '%s': %w", opts.Unit.Name, opts.Unit.Cron, parseErr)
+			return
+		}
 
 		runner.Long = true
 		runner.Action = &actionCron{RunnerOptions: opts}

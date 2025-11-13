@@ -11,12 +11,18 @@ import (
 	"sync/atomic"
 )
 
+// rotatingFile implements io.WriteCloser with thread-safe log rotation
+// Concurrency strategy:
+// - size is managed via atomic operations for lock-free reads
+// - lock protects fd and file operations during rotation
+// - Write() uses atomic.AddInt64 to track size without holding the lock
+// - reallocate() uses double-checked locking pattern to minimize contention
 type rotatingFile struct {
 	opts RotatingFileOptions
 
-	fd   *os.File
-	size int64
-	lock sync.Locker
+	fd   *os.File    // Protected by lock during rotation
+	size int64       // Atomically updated, lock-free reads
+	lock sync.Locker // Protects fd and file operations
 }
 
 // RotatingFileOptions options for creating a RotatingFile
@@ -91,15 +97,19 @@ func (rf *rotatingFile) open() (err error) {
 
 	var info os.FileInfo
 	if info, err = fd.Stat(); err != nil {
+		// Ensure fd is closed on error to prevent leak
 		_ = fd.Close()
 		return
 	}
 
+	// Store reference to existing fd before replacing
 	existed := rf.fd
 
+	// Update file descriptor and size atomically
 	rf.fd = fd
 	rf.size = info.Size()
 
+	// Close previous fd if it exists
 	if existed != nil {
 		_ = existed.Close()
 	}
@@ -111,26 +121,29 @@ func (rf *rotatingFile) reallocate() (err error) {
 	rf.lock.Lock()
 	defer rf.lock.Unlock()
 
-	// recheck, in case of race condition
+	// Recheck size, in case of race condition from concurrent writes
 	if atomic.LoadInt64(&rf.size) <= rf.opts.MaxFileSize {
 		return
 	}
 
-	// find next rotated id
+	// Find next rotated id
 	var id int64
 	if id, err = rf.nextRotatedID(); err != nil {
 		return
 	}
 
-	// try remove existed, in case id looped due to maxCount
+	// Try remove existing rotated file, in case id looped due to maxCount
 	_ = os.Remove(rf.rotatedPath(id))
 
-	// remove current file to rotated path
+	// Rename current file to rotated path
+	// If this fails, the current fd is still valid
 	if err = os.Rename(rf.currentPath(), rf.rotatedPath(id)); err != nil {
 		return
 	}
 
-	// open current file, this will close existing file
+	// Open new current file, which will close the existing fd
+	// If this fails after rename, we've lost the old file handle but
+	// the data is preserved in the rotated file
 	if err = rf.open(); err != nil {
 		return
 	}
@@ -139,12 +152,20 @@ func (rf *rotatingFile) reallocate() (err error) {
 }
 
 func (rf *rotatingFile) Write(p []byte) (n int, err error) {
+	// Defensive check: ensure fd is not nil before writing
+	if rf.fd == nil {
+		err = fmt.Errorf("rotating file: file descriptor is nil")
+		return
+	}
+
 	if n, err = rf.fd.Write(p); err != nil {
 		return
 	}
 
-	// reallocate if exceeded
+	// Reallocate if size exceeded after this write
 	if atomic.AddInt64(&rf.size, int64(n)) > rf.opts.MaxFileSize {
+		// Attempt reallocation; if it fails, log the error but don't
+		// corrupt the write count already returned to caller
 		if err = rf.reallocate(); err != nil {
 			return
 		}

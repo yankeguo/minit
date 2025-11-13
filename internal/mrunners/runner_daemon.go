@@ -42,10 +42,17 @@ forLoop:
 
 		r.Print("restarting")
 
+		// Create timer for restart delay with proper cleanup
 		timer := time.NewTimer(time.Second * 5)
 		select {
 		case <-timer.C:
+			// Timer expired naturally
 		case <-ctx.Done():
+			// Context cancelled, stop timer to prevent resource leak
+			if !timer.Stop() {
+				// Timer already fired, drain the channel
+				<-timer.C
+			}
 			break forLoop
 		}
 	}

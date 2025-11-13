@@ -1,7 +1,7 @@
 package munit
 
 import (
-	"errors"
+	"fmt"
 	"os"
 	"regexp"
 	"sort"
@@ -78,19 +78,19 @@ func Load(opts LoadOptions) (output []Unit, skipped []Unit, err error) {
 	for _, unit := range units {
 		// check unit kind
 		if _, ok := knownUnitKind[unit.Kind]; !ok {
-			err = errors.New("invalid unit kind: " + unit.Kind)
+			err = fmt.Errorf("invalid unit kind '%s' for unit '%s': must be one of: render, once, daemon, cron", unit.Kind, unit.Name)
 			return
 		}
 
 		// check unit name
 		if !regexpName.MatchString(unit.Name) {
-			err = errors.New("invalid unit name: " + unit.Name)
+			err = fmt.Errorf("invalid unit name '%s': name must start with a letter, contain only alphanumeric characters, hyphens, or underscores, and end with an alphanumeric character", unit.Name)
 			return
 		}
 
 		// check duplicated
 		if _, found := names[unit.Name]; found {
-			err = errors.New("duplicated unit name: " + unit.Name)
+			err = fmt.Errorf("duplicated unit name '%s': each unit must have a unique name", unit.Name)
 			return
 		}
 

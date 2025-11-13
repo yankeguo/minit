@@ -21,7 +21,7 @@ func setupWebDAV(logger mlog.ProcLogger) (err error) {
 		return
 	}
 	if err = os.MkdirAll(envRoot, 0755); err != nil {
-		err = fmt.Errorf("failed initializing WebDAV root: %s: %s", envRoot, err.Error())
+		err = fmt.Errorf("failed initializing WebDAV root %s: %s", envRoot, err.Error())
 		return
 	}
 	envPort := strings.TrimSpace(os.Getenv("MINIT_WEBDAV_PORT"))
@@ -42,7 +42,7 @@ func setupWebDAV(logger mlog.ProcLogger) (err error) {
 	}
 	envUsername := strings.TrimSpace(os.Getenv("MINIT_WEBDAV_USERNAME"))
 	envPassword := strings.TrimSpace(os.Getenv("MINIT_WEBDAV_PASSWORD"))
-	s := http.Server{
+	s := &http.Server{
 		Addr: ":" + envPort,
 		Handler: http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			if envUsername != "" && envPassword != "" {
@@ -55,12 +55,22 @@ func setupWebDAV(logger mlog.ProcLogger) (err error) {
 			h.ServeHTTP(rw, req)
 		}),
 	}
+	// Start WebDAV server in background goroutine with error handling
 	go func() {
+		// Only retry on unexpected errors, not on graceful shutdown
 		for {
-			if err := s.ListenAndServe(); err != nil {
-				logger.Printf("failed running WebDAV: %s", err.Error())
+			err := s.ListenAndServe()
+			if err != nil && err != http.ErrServerClosed {
+				logger.Printf("WebDAV server error: %s", err.Error())
+				// Wait before retrying to avoid tight loop on persistent errors
+				time.Sleep(time.Second * 10)
+			} else {
+				// Server closed gracefully or shutting down
+				if err == http.ErrServerClosed {
+					logger.Printf("WebDAV server shut down")
+				}
+				return
 			}
-			time.Sleep(time.Second * 10)
 		}
 	}()
 	return
